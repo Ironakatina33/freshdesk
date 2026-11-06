@@ -29,9 +29,11 @@ function canEdit(){if(server&&!adminUnlocked){$('settingsModal').classList.remov
 function accountUI(){const b=$('accountBtn');b.classList.toggle('hidden',!server);b.textContent=adminUnlocked?'🔓 Quitter gestion':'🔒 Accès gestion';render()}
 function showLogin(message){setSync('Consultation partagée',message||'Code nécessaire uniquement pour modifier','online');$('settingsModal').classList.remove('hidden')}
 async function writeRequest(action,payload={}){
- const response=await fetch(`${settings.url.replace(/\/$/,'')}/functions/v1/freshdesk-save`,{method:'POST',headers:{'content-type':'application/json','apikey':settings.publishableKey},body:JSON.stringify({action,code:adminCode,...payload})});
- const data=await response.json().catch(()=>({}));
- if(!response.ok)throw new Error(data.error||`Erreur ${response.status}`);
+ if(!client)throw new Error('Connexion Supabase indisponible');
+ const args={edit_code:adminCode,operation:action,expected_version:payload.expected_version??null,new_products:payload.products??null};
+ const {data,error}=await client.rpc('freshdesk_save_with_pin',args);
+ if(error)throw new Error(error.message||'Erreur de connexion Supabase');
+ if(!data||data.error)throw new Error(data?.error||'Réponse invalide');
  return data;
 }
 async function syncSave(){
@@ -106,7 +108,7 @@ $('loginForm').onsubmit=async e=>{
  e.preventDefault();if(!server){notice('Configure d’abord Supabase');return}
  $('loginButton').disabled=true;$('loginError').classList.add('hidden');adminCode=$('passwordInput').value;
  try{await writeRequest('check');await connectUser();$('passwordInput').value=''}
- catch(e){adminCode='';$('loginError').textContent='Code incorrect ou fonction Supabase indisponible.';$('loginError').classList.remove('hidden')}
+ catch(e){adminCode='';const msg=String(e?.message||'Erreur inconnue');$('loginError').textContent='Connexion gestion impossible : '+msg+' (vérifie la fonction freshdesk-save dans Supabase).';$('loginError').classList.remove('hidden');console.error('FreshDesk accès gestion :',e)}
  finally{$('loginButton').disabled=false}
 };
 $('accountBtn').onclick=()=>{if(!adminUnlocked){showLogin();return}
