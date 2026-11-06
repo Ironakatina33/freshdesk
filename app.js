@@ -4,7 +4,7 @@ const SEASONS=['Printemps','Été','Automne','Hiver'];
 const SOURCE=[['Myrtille','Fruit'],['Pommes Canada','Fruit'],['Pastèque','Fruit'],['Kaki','Fruit'],['Melon','Fruit'],['Nectarine','Fruit'],['Pêche','Fruit'],['Raisin noir','Fruit'],['Raisin Chasselas','Fruit'],['Raisin BQT','Fruit'],['Framboises','Fruit'],['Abricot vrac / BQT','Fruit'],['TMT cerise mix','Légume'],['PDT Rouge','Légume'],['TMT cot','Légume'],['PDT 2kg CQLP','Légume']];
 const seeded=()=>SOURCE.map(([name,category],i)=>({id:`source-${i+1}`,name,category,seasons:[],qty:0,unit:'Colis',status:'active',note:''}));
 const $=id=>document.getElementById(id);
-let products=[],view='catalog',editing=null,server=false,serverVersion=0,saving=false,saveQueued=false,conflicted=false,saveTimer=null,toastTimer=null,client=null,loggedIn=false,dirty=false,revision=0,pollTimer=null,subscription=null;
+let products=[],view='catalog',editing=null,server=false,serverVersion=0,saving=false,saveQueued=false,conflicted=false,saveTimer=null,toastTimer=null,client=null,adminUnlocked=false,adminCode="",dirty=false,revision=0,pollTimer=null,subscription=null;
 const loadLocal=()=>{try{let arr=JSON.parse(localStorage.getItem('freshdesk-products'));return Array.isArray(arr)?sanitize(arr):seeded()}catch{return seeded()}};
 const sanitize=arr=>arr.filter(x=>x&&typeof x.name==='string').slice(0,3000).map((p,i)=>({id:String(p.id||`import-${i}`),name:String(p.name).slice(0,100),category:p.category==='Légume'?'Légume':'Fruit',seasons:Array.isArray(p.seasons)?p.seasons.filter(s=>SEASONS.includes(s)):[],qty:Math.max(0,Math.floor(Number(p.qty)||0)),unit:String(p.unit||'Colis').slice(0,30),status:p.status==='paused'?'paused':'active',note:String(p.note||'').slice(0,500)}));
 const h=(v)=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -15,8 +15,8 @@ function setSync(title,subtitle,cls=''){ $('syncTitle').textContent=title;$('syn
 function persisted(){localStorage.setItem('freshdesk-products',JSON.stringify(products));if(server){dirty=true;revision++;if(!conflicted){clearTimeout(saveTimer);saveTimer=setTimeout(syncSave,500)}}}
 function mutate(){if(!canEdit())return;persisted();render()}
 function visibleProducts(){let search=$('search').value.trim().toLocaleLowerCase('fr');let cat=$('categoryFilter').value,season=$('seasonFilter').value,status=$('statusFilter').value;return products.filter(p=>{if(view==='order'&&!(p.qty>0&&p.status==='active'))return false;if(cat!=='all'&&p.category!==cat)return false;if(status!=='all'&&p.status!==status)return false;if(season==='none'&&p.seasons.length)return false;if(season==='auto'&&!p.seasons.includes(seasonNow()))return false;if(!['all','none','auto'].includes(season)&&!p.seasons.includes(season))return false;if(search&&!`${p.name} ${p.note}`.toLocaleLowerCase('fr').includes(search))return false;return true}).sort((a,b)=>a.category.localeCompare(b.category)||a.name.localeCompare(b.name,'fr'))}
-function qtyMarkup(p){return `<div class="qty-control ${p.status==='paused'?'paused':''}"><button type="button" data-qty="minus" data-id="${h(p.id)}" aria-label="Diminuer ${h(p.name)}" ${p.status==='paused'?'disabled':''}>−</button><input type="number" min="0" step="1" inputmode="numeric" value="${p.qty}" aria-label="Quantité ${h(p.name)}" data-qty-input="${h(p.id)}" ${p.status==='paused'?'disabled':''}><button type="button" data-qty="plus" data-id="${h(p.id)}" aria-label="Augmenter ${h(p.name)}" ${p.status==='paused'?'disabled':''}>+</button></div>`}
-function render(){const total=products.length,fruits=products.filter(p=>p.category==='Fruit').length,veg=total-fruits,n=countOrder();$('totalStat').textContent=total;$('fruitStat').textContent=fruits;$('vegStat').textContent=veg;$('orderStat').textContent=n;$('navProductCount').textContent=total;$('navOrderCount').textContent=n;$('viewTitle').textContent=view==='catalog'?'Catalogue produits':'Bon de commande';$('viewSubtitle').textContent=view==='catalog'?'Modifie les quantités directement dans le tableau.':'Uniquement les produits actifs avec une quantité supérieure à zéro.';$('printBtn').textContent=view==='order'?'⎙ Imprimer la commande':'⎙ Imprimer';document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===view));const vis=visibleProducts();$('resultCount').textContent=`${vis.length} produit${vis.length!==1?'s':''}`;$('tableFoot').textContent=`${vis.length} référence${vis.length!==1?'s':''} affichée${vis.length!==1?'s':''}`;$('emptyState').classList.toggle('hidden',vis.length>0);document.body.classList.toggle('order-mode',view==='order');$('productRows').innerHTML=vis.map(p=>`<tr><td><button class="product-name" data-edit="${h(p.id)}"><span class="produce-emoji ${p.category==='Légume'?'vegetable':''}">${p.category==='Fruit'?'🍎':'🥬'}</span><span>${h(p.name)}</span></button></td><td><span class="category-pill ${p.category==='Fruit'?'fruit':'veg'}">${p.category==='Fruit'?'Fruit':'Légume'}</span></td><td><div class="season-pills">${p.seasons.length?p.seasons.map(s=>`<span class="season-pill ${s===seasonNow()?'current':''}">${h(s)}</span>`).join(''):'<span class="not-set">À renseigner</span>'}</div></td><td>${qtyMarkup(p)}</td><td>${h(p.unit)}</td><td><span class="status ${p.status==='paused'?'paused':''}">${p.status==='paused'?'En pause':'Actif'}</span></td><td><button class="row-action" data-edit="${h(p.id)}" aria-label="Modifier ${h(p.name)}">✎</button></td></tr>`).join('');const old=document.querySelector('.print-header');if(old)old.remove();const head=document.createElement('div');head.className='print-header';const now=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});head.innerHTML=`<h1>Bon de commande · Fruits & légumes</h1><p>Édité le ${h(now)} · ${vis.length} produit(s) · Vue : ${view==='order'?'Produits à commander':'Catalogue'} · Saison : ${h($('seasonFilter').selectedOptions[0].textContent)}</p>`;document.querySelector('.workspace').prepend(head)}
+function qtyMarkup(p){const disabled=server&&!adminUnlocked?'disabled':'';return `<div class="qty-control ${p.status==='paused'?'paused':''}"><button type="button" data-qty="minus" data-id="${h(p.id)}" aria-label="Diminuer ${h(p.name)}" ${p.status==='paused'||(server&&!adminUnlocked)?'disabled':''}>−</button><input type="number" min="0" step="1" inputmode="numeric" value="${p.qty}" aria-label="Quantité ${h(p.name)}" data-qty-input="${h(p.id)}" ${p.status==='paused'||(server&&!adminUnlocked)?'disabled':''}><button type="button" data-qty="plus" data-id="${h(p.id)}" aria-label="Augmenter ${h(p.name)}" ${p.status==='paused'||(server&&!adminUnlocked)?'disabled':''}>+</button></div>`}
+function render(){const total=products.length,fruits=products.filter(p=>p.category==='Fruit').length,veg=total-fruits,n=countOrder();$('totalStat').textContent=total;$('fruitStat').textContent=fruits;$('vegStat').textContent=veg;$('orderStat').textContent=n;$('navProductCount').textContent=total;$('navOrderCount').textContent=n;$('viewTitle').textContent=view==='catalog'?'Catalogue produits':'Bon de commande';$('viewSubtitle').textContent=view==='catalog'?'Modifie les quantités directement dans le tableau.':'Uniquement les produits actifs avec une quantité supérieure à zéro.';$('printBtn').textContent=view==='order'?'⎙ Imprimer la commande':'⎙ Imprimer';document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===view));const vis=visibleProducts();$('resultCount').textContent=`${vis.length} produit${vis.length!==1?'s':''}`;$('addProduct').disabled=server&&!adminUnlocked;$('clearQuantities').disabled=server&&!adminUnlocked;$('sideImport').disabled=server&&!adminUnlocked;$('tableFoot').textContent=`${vis.length} référence${vis.length!==1?'s':''} affichée${vis.length!==1?'s':''}`;$('emptyState').classList.toggle('hidden',vis.length>0);document.body.classList.toggle('order-mode',view==='order');$('productRows').innerHTML=vis.map(p=>`<tr><td><button class="product-name" data-edit="${h(p.id)}" ${disabled}><span class="produce-emoji ${p.category==='Légume'?'vegetable':''}">${p.category==='Fruit'?'🍎':'🥬'}</span><span>${h(p.name)}</span></button></td><td><span class="category-pill ${p.category==='Fruit'?'fruit':'veg'}">${p.category==='Fruit'?'Fruit':'Légume'}</span></td><td><div class="season-pills">${p.seasons.length?p.seasons.map(s=>`<span class="season-pill ${s===seasonNow()?'current':''}">${h(s)}</span>`).join(''):'<span class="not-set">À renseigner</span>'}</div></td><td>${qtyMarkup(p)}</td><td>${h(p.unit)}</td><td><span class="status ${p.status==='paused'?'paused':''}">${p.status==='paused'?'En pause':'Actif'}</span></td><td><button class="row-action" data-edit="${h(p.id)}" aria-label="Modifier ${h(p.name)}" ${disabled}>✎</button></td></tr>`).join('');const old=document.querySelector('.print-header');if(old)old.remove();const head=document.createElement('div');head.className='print-header';const now=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});head.innerHTML=`<h1>Bon de commande · Fruits & légumes</h1><p>Édité le ${h(now)} · ${vis.length} produit(s) · Vue : ${view==='order'?'Produits à commander':'Catalogue'} · Saison : ${h($('seasonFilter').selectedOptions[0].textContent)}</p>`;document.querySelector('.workspace').prepend(head)}
 function openEdit(id=null){if(!canEdit())return;editing=id;let p=id?products.find(p=>p.id===id):null;if(id&&!p)return;const f=$('productForm');f.reset();f.elements.name.value=p?.name||'';f.elements.category.value=p?.category||'Fruit';f.elements.unit.value=p?.unit||'Colis';f.elements.qty.value=p?.qty??0;f.elements.status.value=p?.status||'active';f.elements.note.value=p?.note||'';f.querySelectorAll('[name=seasons]').forEach(ch=>ch.checked=!!p?.seasons.includes(ch.value));$('modalTitle').textContent=p?'Modifier le produit':'Ajouter un produit';$('deleteProduct').classList.toggle('hidden',!p);$('productModal').classList.remove('hidden');setTimeout(()=>f.elements.name.focus(),50)}
 function closeEdit(){$('productModal').classList.add('hidden');editing=null}
 function setView(v){view=v;render();hideMenu()}
@@ -25,18 +25,23 @@ function exportData(){const blob=new Blob([JSON.stringify({app:'FreshDesk',expor
 function printNow(){window.print()}
 const settings=window.FRESHDESK_CONFIG||{};
 const configured=()=>/^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test((settings.url||'').trim()) && /^(sb_publishable_|eyJ)/.test((settings.publishableKey||'').trim());
-function canEdit(){if(server&&!loggedIn){$('settingsModal').classList.remove('hidden');notice('Connecte-toi pour modifier les commandes');return false}if(conflicted){notice('Conflit : exporte tes changements, puis actualise');return false}return true}
-function accountUI(){const b=$('accountBtn');b.classList.toggle('hidden',!server);b.textContent=loggedIn?'⇥ Se déconnecter':'♙ Se connecter';}
-function showLogin(message){loggedIn=false;accountUI();setSync('Connexion nécessaire',message||'Connecte-toi au magasin','error');$('settingsModal').classList.remove('hidden')}
+function canEdit(){if(server&&!adminUnlocked){$('settingsModal').classList.remove('hidden');notice('Saisis le code gestion pour modifier');return false}if(conflicted){notice('Conflit : exporte tes changements, puis actualise');return false}return true}
+function accountUI(){const b=$('accountBtn');b.classList.toggle('hidden',!server);b.textContent=adminUnlocked?'🔓 Quitter gestion':'🔒 Accès gestion';render()}
+function showLogin(message){setSync('Consultation partagée',message||'Code nécessaire uniquement pour modifier','online');$('settingsModal').classList.remove('hidden')}
+async function writeRequest(action,payload={}){
+ const response=await fetch(`${settings.url.replace(/\/$/,'')}/functions/v1/freshdesk-save`,{method:'POST',headers:{'content-type':'application/json','apikey':settings.publishableKey},body:JSON.stringify({action,code:adminCode,...payload})});
+ const data=await response.json().catch(()=>({}));
+ if(!response.ok)throw new Error(data.error||`Erreur ${response.status}`);
+ return data;
+}
 async function syncSave(){
- if(!server||!loggedIn||conflicted||!dirty)return;
+ if(!server||!adminUnlocked||conflicted||!dirty)return;
  if(saving){saveQueued=true;return}
  saving=true;const sendingRevision=revision,snapshot=JSON.parse(JSON.stringify(products));
  setSync('Synchronisation…','Enregistrement dans Supabase');
  try{
-  const {data,error}=await client.rpc('save_freshdesk',{expected_version:serverVersion,new_products:snapshot});
-  if(error)throw error;
-  if(data===null||data===undefined){conflicted=true;setSync('Conflit détecté','Tes changements locaux sont conservés · exporte-les','error');notice('Modifications simultanées : exporte ta sauvegarde avant de recharger');return}
+  const {version:data,conflict}=await writeRequest('save',{expected_version:serverVersion,products:snapshot});
+  if(conflict){conflicted=true;setSync('Conflit détecté','Tes changements locaux sont conservés · exporte-les','error');notice('Modifications simultanées : exporte ta sauvegarde avant de recharger');return}
   serverVersion=Number(data);
   if(revision===sendingRevision){dirty=false;setSync('En ligne · partagé','Toutes les modifications sont enregistrées','online')}
   else {saveQueued=true;setSync('Synchronisation…','Dernières modifications en attente')}
@@ -44,7 +49,7 @@ async function syncSave(){
  finally{saving=false;if(saveQueued&&!conflicted){saveQueued=false;clearTimeout(saveTimer);saveTimer=setTimeout(syncSave,600)}}
 }
 async function remoteLoad(force=false){
- if(!client||!loggedIn)return false;
+ if(!client)return false;
  if((dirty||saving)&&!force){return false}
  try{
   const {data,error}=await client.from('freshdesk_state').select('products,version').eq('id',1).single();
@@ -54,22 +59,18 @@ async function remoteLoad(force=false){
   localStorage.setItem('freshdesk-products',JSON.stringify(products));render();setSync('En ligne · partagé','Commandes synchronisées','online');return true
  }catch(e){setSync('Connexion interrompue','Copie locale affichée · accès limité','error');notice('Impossible de charger les données du magasin');return false}
 }
-async function connectUser(){
- loggedIn=true;accountUI();$('settingsModal').classList.add('hidden');$('loginError').classList.add('hidden');
- const ok=await remoteLoad();
- if(ok){notice('Connexion réussie · catalogue partagé');subscribeRemote()}
-}
+async function connectUser(){adminUnlocked=true;accountUI();$('settingsModal').classList.add('hidden');$('loginError').classList.add('hidden');notice('Mode gestion activé');}
 function subscribeRemote(){
  if(subscription){client.removeChannel(subscription);subscription=null}
  // Notification Realtime et vérification périodique : aucune donnée écrasée si une édition locale est en attente.
  subscription=client.channel('freshdesk-catalogue').on('postgres_changes',{event:'UPDATE',schema:'public',table:'freshdesk_state',filter:'id=eq.1'},payload=>{
-  if(!loggedIn)return;
+  if(!client)return;
   if(!dirty&&!saving&&Number(payload.new?.version)>serverVersion)remoteLoad();
   else if(Number(payload.new?.version)>serverVersion&&dirty){setSync('Autres modifications détectées','Tes changements locaux restent conservés','error')}
  }).subscribe();
  if(pollTimer)clearInterval(pollTimer);
  pollTimer=setInterval(async()=>{
-  if(!loggedIn||saving||document.hidden)return;
+  if(!client||saving||document.hidden)return;
   if(dirty){if(!conflicted)syncSave();return}
   const {data,error}=await client.from('freshdesk_state').select('version').eq('id',1).single();
   if(!error&&data&&Number(data.version)>serverVersion)remoteLoad();
@@ -79,13 +80,11 @@ async function start(){
  products=loadLocal();$('todayText').textContent=new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'});render();
  if(!configured()){setSync('Mode démonstration','Configure config.js pour activer le partage');return}
  server=true;accountUI();
- if(!window.supabase?.createClient){setSync('Bibliothèque indisponible','Vérifie ta connexion internet','error');notice('Supabase ne se charge pas : vérifie le réseau');return}
+ if(!window.supabase?.createClient){setSync('Bibliothèque indisponible','Vérifie ta connexion internet','error');return}
  try{
-  client=window.supabase.createClient(settings.url.trim(),settings.publishableKey.trim(),{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
-  const {data,error}=await client.auth.getSession();if(error)throw error;
-  if(data.session){await connectUser()}else showLogin('Entre les identifiants du magasin');
-  client.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT'){loggedIn=false;clearInterval(pollTimer);if(subscription)client.removeChannel(subscription);subscription=null;showLogin('Session terminée')} });
- }catch(e){showLogin('Configuration ou connexion Supabase indisponible')}
+  client=window.supabase.createClient(settings.url.trim(),settings.publishableKey.trim(),{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
+  await remoteLoad(true);subscribeRemote();
+ }catch(e){setSync('Connexion interrompue','Impossible de charger le catalogue partagé','error')}
 }
 $('productRows').addEventListener('click',e=>{const btn=e.target.closest('[data-edit],[data-qty]');if(!btn)return;if(btn.dataset.edit){openEdit(btn.dataset.edit);return}if(!canEdit())return;const p=products.find(p=>p.id===btn.dataset.id);if(!p)return;p.qty=Math.max(0,p.qty+(btn.dataset.qty==='plus'?1:-1));mutate()});
 $('productRows').addEventListener('change',e=>{const id=e.target.dataset.qtyInput;if(!id)return;if(!canEdit())return;const p=products.find(p=>p.id===id);if(!p)return;p.qty=Math.max(0,Math.floor(Number(e.target.value)||0));mutate()});
@@ -98,21 +97,21 @@ $('sideExport').onclick=exportData;$('sideImport').onclick=()=>$('importFile').c
 $('clearQuantities').onclick=()=>{if(!canEdit())return;if(!confirm('Remettre toutes les quantités à zéro ?'))return;products.forEach(p=>p.qty=0);mutate();notice('Quantités réinitialisées')};
 document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>setView(b.dataset.view));$('mobileMenu').onclick=()=>{document.querySelector('.sidebar').classList.add('open');$('menuOverlay').classList.remove('hidden')};$('menuOverlay').onclick=hideMenu;
 $('refreshBtn').onclick=async()=>{
- if(server){if(!loggedIn){showLogin();return}if(saving){notice('Synchronisation en cours');return}
-  if(dirty||conflicted){if(!confirm('Des modifications locales ne sont pas sauvegardées. Exporte une sauvegarde JSON avant de les remplacer. Continuer ?'))return}
+ if(server){if(saving){notice('Synchronisation en cours');return}
+  if(dirty||conflicted){if(!confirm('Des changements ne sont pas sauvegardés. Exporte-les avant de remplacer. Continuer ?'))return}
   const ok=await remoteLoad(true);if(ok)notice('Catalogue à jour')
  }else{render();notice('Données locales à jour')}
 };
 $('loginForm').onsubmit=async e=>{
- e.preventDefault();if(!client){notice('Configure le site avec Supabase');return}
- $('loginButton').disabled=true;$('loginError').classList.add('hidden');
- try{const {error}=await client.auth.signInWithPassword({email:$('emailInput').value.trim(),password:$('passwordInput').value});if(error)throw error;await connectUser();$('passwordInput').value=''}
- catch(e){$('loginError').classList.remove('hidden');setSync('Accès refusé','Vérifie le compte et le mot de passe','error')}
+ e.preventDefault();if(!server){notice('Configure d’abord Supabase');return}
+ $('loginButton').disabled=true;$('loginError').classList.add('hidden');adminCode=$('passwordInput').value;
+ try{await writeRequest('check');await connectUser();$('passwordInput').value=''}
+ catch(e){adminCode='';$('loginError').textContent='Code incorrect ou fonction Supabase indisponible.';$('loginError').classList.remove('hidden')}
  finally{$('loginButton').disabled=false}
 };
-$('accountBtn').onclick=async()=>{if(!loggedIn){showLogin();return}
- if(dirty||conflicted){notice('Exporte ou synchronise les modifications avant de te déconnecter');return}
- if(confirm('Se déconnecter de FreshDesk ?')){if(client)await client.auth.signOut();products=seeded();render()}
+$('accountBtn').onclick=()=>{if(!adminUnlocked){showLogin();return}
+ if(dirty||saving||conflicted){notice('Sauvegarde les modifications avant de quitter la gestion');return}
+ adminUnlocked=false;adminCode='';accountUI();notice('Mode consultation activé')
 };
 $('closeSettings').onclick=()=>{$('settingsModal').classList.add('hidden')};
 window.addEventListener('beforeunload',e=>{if(server&&(dirty||saving)){e.preventDefault();e.returnValue=''}});

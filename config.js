@@ -1,7 +1,5 @@
-// Remplace ces deux valeurs avec celles de Supabase > Project Settings > API Keys.
-// La clé "publishable" (ou "anon" historique) est publique : c'est normal.
-// NE JAMAIS mettre une clé "secret" / "service_role" ici !
+// Clé PUBLIQUE seulement ; ne jamais mettre une clé sb_secret_ dans un site web.
 window.FRESHDESK_CONFIG = {
-  url: "https://VOTRE-PROJET.supabase.co",
-  publishableKey: "VOTRE_CLE_PUBLISHABLE"
+  url: "https://okurdvnqsalulfnvkyqg.supabase.co",
+  publishableKey: "sb_publishable_DsAMOd0kyuJ2Ojt5GDfrWw_zs4woorC"
 };
