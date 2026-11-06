@@ -1,3 +1,27 @@
+# FreshDesk V2 — tableau visible et lisible
+
+## Mettre à jour le site EXISTANT (sans perdre les données)
+
+1. Ouvre ton dépôt GitHub Pages actuel.
+2. Remplace `index.html`, `app.js`, `style.css` par les fichiers de ce ZIP (et `config.js` si nécessaire, en gardant tes paramètres actuels).
+3. GitHub Pages republiera automatiquement les changements. Recharge la page sur PC et téléphone (Ctrl+F5 si besoin).
+4. **Ne relance pas le script SQL et ne supprime pas la table Supabase.** Les produits et quantités existants sont conservés.
+
+## Ce qui change
+- Correction d'une erreur de rendu qui empêchait d'afficher les lignes (variable `disabled` manquante).
+- Tableau immédiatement visible et plus lisible.
+- Onglets « Tous les produits » / « Ma commande » et impression accessible directement.
+- Vue téléphone simplifiée : produit, quantité, action ; plus besoin de faire défiler 7 colonnes.
+- Filtres, saisons, ajout de produits, code gestion et synchronisation existants préservés.
+
+## Accès
+- Lecture libre, modification uniquement avec le code de gestion côté Edge Function.
+- La configuration n'utilise que la clé Supabase PUBLIQUE. Révoque la clé secrète que tu avais partagée précédemment.
+- L'impression utilise la vue affichée. Pour n'imprimer que les produits commandés, ouvre d'abord « Ma commande ».
+
+## Vérification
+Après publication, le tableau doit montrer les 16 produits initiaux ou tes références enregistrées dans Supabase. Si le serveur est indisponible, l'application affiche une copie locale avec un état « Connexion interrompue ».
+
 # FreshDesk — sans compte, synchronisé, gratuit
 
 **Projet déjà configuré avec l'URL Supabase et la clé PUBLIQUE** dans `config.js`. La clé `sb_secret_…` communiquée dans la conversation n'a PAS été placée dans les fichiers. **Révoque-la et remplace-la** dans Supabase > Settings > API Keys (elle a été divulguée).
