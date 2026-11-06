@@ -1,14 +1,35 @@
-# FreshDesk — mode gestion PIN fixe 0000 (sans Edge Function)
+# FreshDesk V4 — identité Fruits & Légumes
 
-## Installation (2 actions)
-1. Ouvre https://supabase.com/dashboard/project/okurdvnqsalulfnvkyqg/sql/new, copie tout le fichier `CODE_0000_SUPABASE.sql` dans SQL Editor puis clique **Run**. **Ne supprime pas** les anciennes tables ni les commandes : ce script conserve le catalogue existant. Si la table est absente, exécute d'abord `INSTALLATION_SUPABASE.sql` puis réessaie.
-2. Sur ton dépôt GitHub Pages actuel, remplace **uniquement `app.js`** par le fichier fourni (ou tous les fichiers du site si tu veux repartir de cette V2). Force l’actualisation (Ctrl+F5).
+Version visuelle rénovée dans l'esprit de l'outil planning Carrefour City, avec symbole Carrefour recoloré vert/orange pour différencier FreshDesk. Le symbole est une variante graphique interne et n'est pas la signature officielle de la marque.
 
-Dans FreshDesk, clique **Accès gestion** puis saisis **0000**. La lecture reste sans compte ; l'ajout, la modification et la suppression de produits utilisent désormais un RPC Supabase au lieu d'une Edge Function. Plus besoin de créer `freshdesk-save` ni le secret `FRESHDESK_EDIT_CODE`.
+## Mise à jour sur GitHub Pages
 
-### Important
-- **0000 est extrêmement facile à deviner**. Toute personne qui connaît l'adresse du projet peut essayer ce code, et toute personne qui le connaît peut modifier les commandes. Ne mets aucune information sensible dans ce site.
-- La logique vérifie le code dans la base de données (pas seulement en JavaScript). Le code est fixe ; pour le modifier, il faudra remplacer `0000` dans le fichier SQL et réexécuter le bloc `create or replace function`.
-- Si tu avais déjà publié la clé `sb_secret_...`, révoque-la dans Supabase > Settings > API Keys. Le site n'utilise que la clé publique.
-- La synchronisation et la prévention des écrasements de versions sont conservées.
-- Pour sauvegarder tes données, utilise régulièrement **Exporter** dans le site.
+Dépôt : https://github.com/Ironakatina33/freshdesk
+
+1. Par sécurité, ouvrez FreshDesk et téléchargez une sauvegarde JSON de vos produits/commandes.
+2. Dans votre dépôt GitHub, branche `main`, remplacez **`index.html`** par celui de cette archive.
+3. Ajoutez **`brand-fresh.svg`** à la racine du dépôt.
+4. Remplacez **`manifest.webmanifest`** par celui de cette archive (facultatif mais recommandé pour l'icône de l'application).
+5. Conservez votre **`config.js`** actuel, ainsi que `.nojekyll`. Ne modifiez pas la base SQL ni les fonctions Supabase.
+6. Attendez la publication via GitHub Pages puis rechargez le site avec `Ctrl+F5`.
+
+L'archive contient uniquement les nouveaux fichiers nécessaires. Les anciens `app.js` et `style.css` peuvent rester dans le dépôt : FreshDesk V4 n'en dépend pas, son CSS et JavaScript sont intégrés à `index.html`.
+
+## Fonctions conservées
+
+- Catalogue, commande, recherche, catégories, saisons, statut et unités
+- Trois affichages : tableau, liste et cartes
+- Ajustement des quantités, gestion des produits, import/export JSON
+- Synchronisation Supabase existante + contrôle d'accès gestion existant (`0000` si le code de votre base est toujours celui configuré auparavant)
+- Impression A4 portrait compacte, sans espace inutile
+
+## Vérifications locales
+
+- Rendu desktop (1440 px) et mobile (390 px) vérifié
+- Affichage des 16 produits, commutation des trois vues et bouton quantité testés
+- Préparation du bon de commande en mode impression testée
+- Le test local n'a pas écrit de données dans votre Supabase. La connexion réelle sera validée lors de la publication.
+
+## Sécurité
+
+Ne publiez jamais de clé `sb_secret_` dans GitHub. Un code de gestion `0000` est très faible et ne doit pas être utilisé pour des données confidentielles.
