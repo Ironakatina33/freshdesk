@@ -1,0 +1,24 @@
+name: FreshDesk V5 — Design regression
+on:
+  push:
+    branches: [feat/fle-v5-hub-design, main]
+  pull_request:
+    branches: [main]
+jobs:
+  ui:
+    runs-on: ubuntu-latest
+    permissions: {contents: read}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '24'}
+      - name: Validate JS syntax
+        run: node --check freshdesk-v5.js
+      - name: Run UI and integration-contract tests
+        run: node --test tests/v5-ui.test.mjs
+      - name: Verify Supabase configuration and static assets
+        run: |
+          test -s config.js
+          test -s brand-fresh.svg
+          test -s freshdesk-v5.css
+          test -s freshdesk-v5.js
