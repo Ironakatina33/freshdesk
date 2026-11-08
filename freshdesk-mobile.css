@@ -208,3 +208,6 @@
 @media(prefers-reduced-motion:reduce){
  .fle-mobile-nav button,.list-line{transition:none!important;animation:none!important}
 }
+
+/* Never print installation chrome or the fixed mobile navigation. */
+@media print{.fle-mobile-nav,.fle-mobile-install,#fleInstallDialog{display:none!important}}
