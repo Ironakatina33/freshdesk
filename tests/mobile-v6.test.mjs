@@ -28,7 +28,7 @@ test('Mobile: safe area, 44px touch targets, no print changes, and dark theme',(
  assert.match(css,/@media screen and \(max-width:700px\)/);
  assert.match(css,/@media screen and \(min-width:701px\)/);
  assert.match(base,/@media print/);
- assert.match(css,/@media print\\{\\.fle-mobile-nav/);
+ assert.ok(css.includes('@media print{.fle-mobile-nav'));
 });
 test('Mobile: scripts and service worker parse; only static app shell is cached',()=>{
  assert.doesNotThrow(()=>new Script(read('freshdesk-mobile.js')));
