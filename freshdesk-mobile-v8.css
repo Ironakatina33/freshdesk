@@ -1,0 +1,93 @@
+/* FreshDesk Mobile V8 — fixes the hidden table columns left by legacy CSS.
+   Also styles the on-device recovery timeline. Screen-only; printing unchanged. */
+@media screen and (max-width:700px){
+ html,body{overflow-x:clip}
+ .fle-mobile-nav button span{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.2;text-align:center}
+ .fle-mobile-nav button{min-width:0;padding:7px 2px!important}
+ .top-suite{max-width:140px;white-space:normal;line-height:1.15}
+ .workspace-head .toolbar-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .workspace-head .toolbar-actions .fle-history-button{grid-column:1/-1;background:#eaf5ed;color:#176548;border:1px solid #bfdcc8}
+ .workspace-head .toolbar-actions button{min-width:0;white-space:normal;line-height:1.25}
+ .fle-table-hint{display:none;margin:1px 0 9px;font-size:12px;font-weight:700;color:#376f59}
+ html[data-fle-layout="table"] .fle-table-hint{display:block}
+ #tableView.table-scroll{display:block;max-width:100%;overflow-x:auto!important;overflow-y:hidden!important;
+   -webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;touch-action:pan-x;
+   border:1px solid #d7e5dc;border-radius:12px;background:#fff}
+ #tableView.hidden{display:none!important}
+ #tableView .product-table{display:table!important;table-layout:auto!important;min-width:900px!important;
+   width:max-content!important;white-space:nowrap!important;border-collapse:collapse}
+ #tableView .product-table thead{display:table-header-group!important}
+ #tableView .product-table tbody{display:table-row-group!important}
+ #tableView .product-table tr{display:table-row!important}
+ #tableView .product-table th,#tableView .product-table td{display:table-cell!important;
+   width:auto!important;min-width:unset!important;max-width:none!important;white-space:nowrap!important;
+   padding:11px 12px!important;vertical-align:middle}
+ #tableView .product-table th:first-child,#tableView .product-table td:first-child{
+   position:sticky;left:0;z-index:2;min-width:170px!important;max-width:210px!important;
+   white-space:normal!important;box-shadow:2px 0 8px #14382510}
+ #tableView .product-table th:nth-child(4),#tableView .product-table td:nth-child(4){min-width:155px!important}
+ #tableView .product-table th:nth-child(2),#tableView .product-table th:nth-child(3),
+ #tableView .product-table th:nth-child(5),#tableView .product-table th:nth-child(6){min-width:100px!important}
+ #tableView .qty button{min-width:42px;min-height:44px}
+ #tableView .qty input{min-width:45px;min-height:44px;font-size:16px}
+ #tableView .product-table td:first-child .product-name{max-width:195px;white-space:normal;overflow-wrap:break-word}
+ .filters select{white-space:normal;text-overflow:ellipsis}
+ .layout-bar .switch button{overflow:visible;text-overflow:clip;white-space:normal!important;line-height:1.2}
+ .list-line .list-name small{overflow-wrap:anywhere}
+}
+@media screen and (max-width:380px){
+ .top-suite{max-width:90px;font-size:10px!important}
+ .workspace-head .toolbar-actions button{font-size:11px}
+}
+.fle-history-dialog{width:min(900px,calc(100vw - 26px));max-height:min(88dvh,850px);
+  background:#fff;color:#163b30;border:1px solid #dce8e0;border-radius:17px;
+  padding:0;box-shadow:0 20px 55px #0a251e50;overflow:auto;overscroll-behavior:contain}
+.fle-history-dialog::backdrop{background:#0b201db0}
+.fle-history-head{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:22px 23px 12px}
+.fle-history-head small{font-size:10px;color:#348663;letter-spacing:.09em;font-weight:800}
+.fle-history-head h2{font-size:23px;letter-spacing:-.04em;line-height:1.2;margin:5px 0}
+.fle-history-close{border:0;border-radius:10px;padding:11px 15px;min-height:43px;background:#eaf3ed;color:#165a3e;font-weight:750;cursor:pointer}
+.fle-history-explain{margin:0 23px 15px;font-size:12px;line-height:1.5;color:#617c6e}
+.fle-history-warning{background:#fff4de;border-radius:8px;padding:10px;color:#855a12;margin:10px 23px}
+.fle-history-grid{display:grid;grid-template-columns:minmax(195px,.85fr) minmax(0,1.3fr);border-top:1px solid #e0e9e4}
+.fle-history-list{max-height:55dvh;overflow-y:auto;padding:12px;border-right:1px solid #e1eae4;display:flex;flex-direction:column;gap:6px}
+.fle-history-entry{text-align:left;display:flex;flex-direction:column;gap:5px;background:#f7faf7;border:1px solid transparent;border-radius:10px;padding:12px;cursor:pointer;color:#34594b}
+.fle-history-entry.selected{background:#e6f4eb;border-color:#9fcfb0}
+.fle-history-entry strong{font-size:13px}.fle-history-entry small{font-size:11px;color:#71887b;line-height:1.35}
+.fle-history-detail{padding:18px 20px;overflow-wrap:anywhere}
+.fle-history-detail h3{font-size:17px;margin:0 0 7px}.fle-history-detail h4{font-size:12px;margin:20px 0 9px}
+.fle-history-detail p{font-size:12px;line-height:1.5;color:#657b70}
+.fle-history-diff{max-height:30dvh;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
+.fle-history-diff>div{border-radius:8px;background:#f3f7f4;padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+.fle-history-diff strong{font-size:12px;color:#264f3d}.fle-history-diff small{font-size:11px;color:#648170;line-height:1.5}
+.fle-history-restore{width:100%;border:0;background:#166b4a;color:#fff;font-weight:800;padding:13px;border-radius:10px;min-height:47px;cursor:pointer}
+.fle-history-restore:disabled{opacity:.44;cursor:not-allowed}
+.fle-history-permission{font-size:11px;line-height:1.5;display:block;margin-top:9px;color:#738a7c}
+.fle-history-footer{padding:13px 20px;display:flex;justify-content:space-between;gap:8px;border-top:1px solid #e0e9e2}
+.fle-history-footer button{min-height:43px;padding:10px;border-radius:9px;border:1px solid #c9decf;background:#f6faf7;color:#265b42;cursor:pointer;font-weight:700}
+.fle-history-empty{padding:28px 22px;font-size:13px;color:#687f72}
+html[data-fle-theme=dark] .fle-history-dialog{background:#1b3039;color:#e4f9ed;border-color:#3b5a53}
+html[data-fle-theme=dark] .fle-history-entry{background:#243b43;color:#e3f4e9}
+html[data-fle-theme=dark] .fle-history-entry.selected{background:#285747;border-color:#508f70}
+html[data-fle-theme=dark] .fle-history-explain,html[data-fle-theme=dark] .fle-history-detail p{color:#b0c9bd}
+html[data-fle-theme=dark] .fle-history-diff>div{background:#29434b}
+html[data-fle-theme=dark] .fle-history-diff strong{color:#e2f7e9}
+html[data-fle-theme=dark] .fle-history-diff small{color:#b3cfc0}
+html[data-fle-theme=dark] .fle-history-footer,html[data-fle-theme=dark] .fle-history-list{border-color:#3b554c}
+html[data-fle-theme=dark] .fle-history-close,html[data-fle-theme=dark] .fle-history-footer button{background:#2c5144;color:#e2f8ed;border-color:#437b59}
+@media screen and (max-width:700px){
+ .fle-history-dialog{position:fixed;inset:auto 0 0;width:100%;max-width:none;max-height:91dvh;
+  border-radius:19px 19px 0 0;padding-bottom:env(safe-area-inset-bottom,0px)}
+ .fle-history-head{padding:18px 16px 10px}.fle-history-head h2{font-size:21px}
+ .fle-history-explain{margin:0 16px 12px}
+ .fle-history-grid{display:flex;flex-direction:column}
+ .fle-history-list{flex-direction:row;overflow-x:auto;max-height:120px;min-height:95px;
+  border-right:0;border-bottom:1px solid #e0e9e4;padding:11px}
+ .fle-history-entry{min-width:190px;max-width:235px}
+ .fle-history-detail{padding:15px 16px 22px;max-height:44dvh;overflow-y:auto}
+ .fle-history-diff{max-height:20dvh}
+ .fle-history-footer{padding:12px 16px;position:sticky;bottom:0;background:inherit}
+ .fle-history-footer button{font-size:11px;padding:8px}
+ .fle-history-restore{min-height:49px}
+}
+@media print{.fle-history-dialog,.fle-history-button,.fle-table-hint{display:none!important}}
