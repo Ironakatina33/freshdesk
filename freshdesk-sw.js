@@ -1,0 +1,35 @@
+/* FreshDesk PWA V6 — cache only the static shell, never Supabase data. */
+const VERSION='freshdesk-mobile-v6.0.0';
+const SHELL=[
+ './','./index.html','./brand-fresh.svg','./manifest.webmanifest',
+ './freshdesk-v5.css?v=5.0.0','./freshdesk-mobile.css?v=6.0.0',
+ './freshdesk-v5.js?v=5.0.0','./freshdesk-mobile.js?v=6.0.0',
+ './config.js'
+];
+self.addEventListener('install',event=>{
+ event.waitUntil(caches.open(VERSION).then(async cache=>{
+  // Keep installation non-blocking when one resource is unavailable.
+  await Promise.allSettled(SHELL.map(url=>cache.add(url)));
+ }).then(()=>self.skipWaiting()));
+});
+self.addEventListener('activate',event=>{
+ event.waitUntil(caches.keys().then(keys=>Promise.all(
+  keys.filter(key=>key.startsWith('freshdesk-mobile-')&&key!==VERSION).map(key=>caches.delete(key))
+ )).then(()=>self.clients.claim()));
+});
+self.addEventListener('fetch',event=>{
+ const request=event.request;
+ if(request.method!=='GET')return;
+ const url=new URL(request.url);
+ if(url.origin!==self.location.origin)return;
+ // The shell uses a network-first strategy to avoid outdated quantities.
+ // All dynamic Supabase calls happen on a different origin and pass through.
+ if(request.mode==='navigate'){
+  event.respondWith(fetch(request).then(response=>{
+   if(response.ok)caches.open(VERSION).then(c=>c.put('./index.html',response.clone())).catch(()=>{});
+   return response;
+  }).catch(async()=>await caches.match('./index.html')||Response.error()));
+  return;
+ }
+ event.respondWith(caches.match(request).then(hit=>hit||fetch(request)));
+});

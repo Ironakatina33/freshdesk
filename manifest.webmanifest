@@ -1,11 +1,11 @@
 {
-  "name": "FreshDesk · Fruits & Légumes",
-  "short_name": "FreshDesk F&L",
+  "name": "FreshDesk FLE · City Ornano",
+  "short_name": "FreshDesk",
   "lang": "fr",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#f6f7f5",
-  "theme_color": "#183747",
+  "background_color": "#f5f7f6",
+  "theme_color": "#1b8068",
   "icons": [
     {
       "src": "brand-fresh.svg",
@@ -13,5 +13,12 @@
       "type": "image/svg+xml",
       "purpose": "any"
     }
+  ],
+  "description": "Commandes Fruits & Légumes du magasin Ornano",
+  "id": "./",
+  "scope": "./",
+  "categories": [
+    "productivity",
+    "business"
   ]
 }
