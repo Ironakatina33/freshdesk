@@ -33,3 +33,19 @@ L'archive contient uniquement les nouveaux fichiers nécessaires. Les anciens `a
 ## Sécurité
 
 Ne publiez jamais de clé `sb_secret_` dans GitHub. Un code de gestion `0000` est très faible et ne doit pas être utilisé pour des données confidentielles.
+
+## Mobile V6
+
+- Catalogue et commandes optimisés pour smartphone (320–700 px).
+- **Liste par défaut** sur un nouvel appareil mobile, avec boutons de quantité
+  de 46 px ; l'utilisateur peut toujours choisir Tableau ou Cartes.
+- Navigation fixe à quatre entrées : Catalogue, Commande avec badge, Recherche,
+  Imprimer ; zone sûre pour les téléphones à encoche.
+- Barre de recherche toujours utilisable ; contrôles adaptés à l'ouverture du clavier.
+- Fenêtres modales présentées comme panneaux remontant du bas.
+- Installable en application via menu du navigateur / bouton « Installer »,
+  avec support PWA et cache des seuls fichiers statiques.
+- La synchronisation Supabase, la validation du code de gestion, la structure
+  du bon A4 et l'impression restent inchangées. **Le cache n'archive pas les
+  données de commandes provenant de Supabase.**
+- Les écrans d'ordinateur conservent l'interface V5 existante.

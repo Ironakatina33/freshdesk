@@ -1,0 +1,23 @@
+name: FreshDesk V6 — Mobile regression
+on:
+  push:
+    branches: [feat/mobile-first-v6]
+  pull_request:
+    branches: [main]
+jobs:
+  mobile:
+    runs-on: ubuntu-latest
+    permissions: {contents: read}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: "24"}
+      - name: Existing V5 regression checks
+        run: node --test tests/v5-ui.test.mjs
+      - name: Mobile/PWA feature tests
+        run: node --test tests/mobile-v6.test.mjs
+      - name: Verify scripts
+        run: |
+          node --check freshdesk-v5.js
+          node --check freshdesk-mobile.js
+          node --check freshdesk-sw.js
