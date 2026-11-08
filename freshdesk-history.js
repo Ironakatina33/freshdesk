@@ -102,6 +102,7 @@
  function init(){
   ensureUi();
   window.addEventListener('fle:state',handleState);
+  window.dispatchEvent(new Event('fle:request-state'));
   window.addEventListener('fle:history',e=>{
    const d=e.detail||{};if(d.source==='local'){
     clearTimeout(localTimer);localTimer=setTimeout(()=>record(d.products,'local',d.version),700);
