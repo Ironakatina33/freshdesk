@@ -204,6 +204,33 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 }
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 
+
+/* FreshDesk mobile refinement 2026-11-09 — screen-only, printing untouched */
+@media screen and (max-width:700px){
+ html,body{max-width:100%;overflow-x:clip}
+ .shell,.main,.content,.workspace{min-width:0;max-width:100%}
+ .content{padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))}
+ .fle-mobile-nav{padding-bottom:env(safe-area-inset-bottom,0px);box-shadow:0 -8px 30px #102c2817}
+ .fle-mobile-nav button{touch-action:manipulation;min-height:50px}
+ .filters input,.filters select,.fields input,.fields select,.fields textarea,.code-form input{font-size:16px}
+ .qty button{min-width:44px;min-height:44px;touch-action:manipulation}
+ .qty input{min-height:44px;font-size:16px}
+ .list-line{min-height:66px}
+ .list-name{overflow-wrap:anywhere}
+ .card-grid,.compact-list{min-width:0}
+ .modal{overscroll-behavior:contain}
+ .toast{bottom:calc(88px + env(safe-area-inset-bottom,0px));left:12px;right:12px;text-align:center}
+}
+@media screen and (max-width:370px){
+ .content{padding-inline:9px}
+ .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .stat{min-width:0}
+ .toolbar-actions .btn{white-space:normal}
+ .card-grid{grid-template-columns:1fr}
+ .list-line .qty button{min-width:40px}
+ .list-line .qty input{width:36px}
+}
+
 </style><link rel="stylesheet" href="freshdesk-v5.css?v=5.0.0"><link rel="stylesheet" href="freshdesk-mobile.css?v=6.0.0"><script>try{document.documentElement.dataset.fleTheme=localStorage.getItem('freshdesk.theme.v5')||'light'}catch{}</script></head><body>
 <div class="shell"><aside class="side"><div class="brand"><span class="brand-logo"><img src="brand-fresh.svg" alt="Symbole Carrefour en vert et orange"></span><div class="brand-name">FreshDesk<small>FRUITS & LÉGUMES</small></div></div><div class="side-context"><span class="side-context-dot"></span> Gestion magasin <span class="side-context-b">/ Frais</span></div><div class="side-label">COMMANDES</div><button data-view="catalog" class="active">▦ &nbsp; Catalogue produits</button><button data-view="order">▤ &nbsp; Ma commande</button><div class="side-label" style="margin-top:27px">OUTILS & DONNÉES</div><button id="sidePrint">⎙ &nbsp; Imprimer le bon</button><button id="exportBtn">⇩ &nbsp; Sauvegarde JSON</button><button id="importBtn">⇧ &nbsp; Importer</button><a class="fle-hub-link" href="https://city-ornano.fr/">Retour au City Hub <span aria-hidden="true">↗</span></a><div class="bottom"><span id="syncDot" class="dot"></span><strong id="syncTitle">Connexion…</strong><div id="syncText">Chargement des commandes</div></div></aside>
 <div class="main"><header class="top"><div class="top-location"><span class="mini-logo"><img src="brand-fresh.svg" alt=""></span><span class="top-suite">CARREFOUR CITY <span class="top-divider">/</span> COMMANDES F&amp;L</span></div><div class="top-right"><a class="fle-hub-top" href="https://city-ornano.fr/" aria-label="Retour au portail City Hub">↗ Hub</a><span class="date" id="today"></span><button id="refresh">↻ Actualiser</button><button id="adminBtn">🔒 Accès gestion</button><button type="button" id="fleThemeBtn" class="fle-theme-btn" aria-label="Activer le mode nuit" aria-pressed="false" title="Mode nuit">☾</button></div></header>
