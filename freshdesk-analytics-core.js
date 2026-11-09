@@ -3,7 +3,7 @@
    Monthly aggregates persist when the detailed events roll off. */
 (function(root){
  'use strict';
- const TYPES={ordered:'Commandé',received:'Réceptionné',exit:'Sortie enregistrée',
+ const TYPES={ordered:'Commandé',cancel:'Envoi annulé',received:'Réceptionné',exit:'Sortie enregistrée',
   waste:'Perte / casse',entry:'Entrée manuelle',inventory:'Inventaire',adjust:'Correction'};
  const FIELDS={ordered:'ordered',received:'received',exit:'exit',waste:'waste',entry:'entry'};
  const MAX_EVENTS=200,MAX_MONTHS=120,MAX_LOTS=100;
@@ -146,6 +146,20 @@
   addMonthly(state.months,event);
   return event;
  }
+ function cancelOrder(product,at){
+  const state=ensure(product),qty=num(state.sentQty);
+  if(!qty)return false;
+  const original=state.lastSentAt?.slice(0,7),unit=clampString(product.unit||'Colis',30);
+  const monthly=state.months.find(r=>r.month===original&&r.unit===unit);
+  if(monthly)monthly.ordered=Math.max(0,monthly.ordered-qty);
+  state.sentQty=0;state.lastSentAt=null;
+  const stamp=validDate(at)?at:new Date().toISOString();
+  const event=normalizeEvent({id:stamp+'-cancel-'+Math.random().toString(36).slice(2,7),
+   at:stamp,type:'cancel',qty,unit,note:'Marquage envoyé annulé · sans effet sur le stock'},unit);
+  state.events.push(event);
+  if(state.events.length>MAX_EVENTS)state.events.splice(0,state.events.length-MAX_EVENTS);
+  return true;
+ }
  function periodRows(product,period='12m',now=new Date()){
   const analytics=normalize(product),unit=clampString(product.unit||'Colis',30);
   let rows=analytics.months.filter(r=>r.unit===unit);
@@ -168,5 +182,5 @@
    return sum;
   },{ordered:0,received:0,exit:0,waste:0,entry:0,rotationUnits:0,rotationDayUnits:0});
  }
- root.FreshDeskAnalytics=Object.freeze({normalize,addEvent,periodRows,totals,seasonFor,TYPES});
+ root.FreshDeskAnalytics=Object.freeze({normalize,addEvent,cancelOrder,periodRows,totals,seasonFor,TYPES});
 })(window);
