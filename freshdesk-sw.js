@@ -1,8 +1,8 @@
 /* FreshDesk PWA V6 — cache only the static shell, never Supabase data. */
-const VERSION='freshdesk-insights-v1.0.0';
+const VERSION='freshdesk-insights-v1.0.1';
 const SHELL=[
  './','./index.html','./brand-fresh.svg','./manifest.webmanifest',
- './freshdesk-v5.css?v=5.4.0','./freshdesk-mobile.css?v=6.0.0','./freshdesk-mobile-v7.css?v=7.0.0','./freshdesk-mobile-v8.css?v=8.0.0','./freshdesk-mobile-v9.css?v=9.0.0','./freshdesk-stock.css?v=1.1.0','./freshdesk-insights.css?v=1.0.0','./freshdesk-history.js?v=1.2.1','./freshdesk-analytics-core.js?v=1.0.0','./freshdesk-stock.js?v=1.2.0','./freshdesk-insights.js?v=1.0.1',
+ './freshdesk-v5.css?v=5.4.0','./freshdesk-mobile.css?v=6.0.0','./freshdesk-mobile-v7.css?v=7.0.0','./freshdesk-mobile-v8.css?v=8.0.0','./freshdesk-mobile-v9.css?v=9.0.0','./freshdesk-stock.css?v=1.1.0','./freshdesk-insights.css?v=1.0.1','./freshdesk-history.js?v=1.2.1','./freshdesk-analytics-core.js?v=1.0.1','./freshdesk-stock.js?v=1.2.1','./freshdesk-insights.js?v=1.0.1',
  './freshdesk-v5.js?v=5.0.0','./freshdesk-mobile.js?v=6.1.0',
  './config.js'
 ];
