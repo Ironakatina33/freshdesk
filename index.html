@@ -315,13 +315,47 @@ document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{view=b.datase
 for(const id of ['search','category','season','status'])$(id).addEventListener(id==='search'?'input':'change',render);
 const workspace=document.querySelector('.workspace');workspace.addEventListener('click',e=>{const b=e.target.closest('[data-edit],[data-qty]');if(!b)return;if(b.dataset.edit){openEdit(b.dataset.edit);return}if(!canEdit())return;const p=products.find(x=>x.id===b.dataset.id);if(!p||p.status==='paused')return;p.qty=Math.max(0,p.qty+(b.dataset.qty==='plus'?1:-1));changed()});workspace.addEventListener('change',e=>{const id=e.target.dataset.qtyInput;if(!id||!canEdit())return;const p=products.find(x=>x.id===id);if(!p||p.status==='paused')return;p.qty=Math.max(0,Math.floor(Number(e.target.value)||0));changed()});
 $('productForm').onsubmit=e=>{e.preventDefault();if(!canEdit())return;const f=e.currentTarget,p={id:editing||`custom-${Date.now()}-${Math.random().toString(36).slice(2,8)}`,name:f.elements.name.value.trim(),category:f.elements.category.value,seasons:[...f.querySelectorAll('[name="seasons"]:checked')].map(c=>c.value),qty:Math.max(0,Math.floor(Number(f.elements.qty.value)||0)),unit:f.elements.unit.value,status:f.elements.status.value,note:f.elements.note.value.trim()};if(!p.name)return;if(editing){const i=products.findIndex(x=>x.id===editing);if(i>=0){const old=products[i];p.stock=old.stock;p.stockMin=old.stockMin;p.stockUpdatedAt=old.stockUpdatedAt;p.stockEvents=old.stockEvents;products[i]=p}}else{p.stock=null;p.stockMin=0;p.stockUpdatedAt=null;p.stockEvents=[];products.push(p)};closeEdit();changed();notice('Produit enregistré')};
-$('delete').onclick=()=>{if(!canEdit()||!editing||!confirm('Supprimer définitivement le produit ?'))return;products=products.filter(p=>p.id!==editing);closeEdit();changed();notice('Produit supprimé')};$('add').onclick=()=>openEdit();$('closeEdit').onclick=closeEdit;$('editOverlay').onclick=e=>{if(e.target===$('editOverlay'))closeEdit()};
+$('delete').onclick=()=>{if(!canEdit()||!editing||!confirm('Supprimer définitivement le produit et son historique de stock ?'))return;products=products.filter(p=>p.id!==editing);closeEdit();changed();notice('Produit supprimé')};$('add').onclick=()=>openEdit();$('closeEdit').onclick=closeEdit;$('editOverlay').onclick=e=>{if(e.target===$('editOverlay'))closeEdit()};
 $('adminBtn').onclick=()=>{if(admin){if(dirty||saving||conflict){notice('Attends la sauvegarde ou exporte tes données');return}admin=false;pin='';render();notice('Consultation activée')}else $('codeOverlay').classList.remove('hidden')};$('closeCode').onclick=()=>$('codeOverlay').classList.add('hidden');$('codeOverlay').onclick=e=>{if(e.target===$('codeOverlay'))$('codeOverlay').classList.add('hidden')};$('codeForm').onsubmit=async e=>{e.preventDefault();if(!server){notice('Configure Supabase dans config.js');return}pin=$('codeInput').value;$('unlock').disabled=true;$('codeError').classList.add('hidden');try{await request('check');admin=true;$('codeInput').value='';$('codeOverlay').classList.add('hidden');render();notice('Gestion activée')}catch(err){pin='';$('codeError').textContent='Code incorrect ou accès Supabase indisponible : '+err.message;$('codeError').classList.remove('hidden')}finally{$('unlock').disabled=false}};
 for(const id of ['topPrint','mainPrint','sidePrint'])$(id).onclick=printNow;window.addEventListener('beforeprint',buildPrint);
 $('reset').onclick=()=>{if(!canEdit()||!confirm('Remettre toutes les quantités à zéro ?'))return;products.forEach(p=>p.qty=0);changed();notice('Quantités réinitialisées')};$('exportBtn').onclick=exportData;$('importBtn').onclick=()=>$('importFile').click();$('importFile').onchange=async e=>{try{const file=e.target.files[0];if(!file)return;const data=JSON.parse(await file.text());if(!Array.isArray(data.products))throw Error('Fichier invalide');if(!canEdit()||!confirm('Remplacer tout le catalogue par cette sauvegarde ?'))return;products=sanitize(data.products);changed();notice('Catalogue importé')}catch(err){notice(err.message)}finally{e.target.value=''}};
 $('refresh').onclick=async()=>{if(server){if((dirty||saving||conflict)&&!confirm('Des modifications ne sont pas encore enregistrées. Les remplacer par les données du serveur ?'))return;await loadRemote(true)}else{render();notice('Données locales actualisées')}};
 window.addEventListener('beforeunload',e=>{if(server&&(dirty||saving)){e.preventDefault();e.returnValue=''}});
 async function start(){render();const conf=window.FRESHDESK_CONFIG||{};if(!/^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(conf.url||'')||!(/^(sb_publishable_|eyJ)/.test(conf.publishableKey||''))){setSync('Mode local','Configure config.js pour synchroniser');return}server=true;render();if(!window.supabase?.createClient){setSync('Erreur réseau','Supabase JS indisponible','err');return}client=window.supabase.createClient(conf.url,conf.publishableKey,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});await loadRemote(true);setInterval(async()=>{if(!client||document.hidden||saving)return;if(dirty){if(!conflict)save();return}try{const {data}=await client.from('freshdesk_state').select('version').eq('id',1).single();if(data&&Number(data.version)>version)await loadRemote()}catch{}},15000)}
+// Stock V1: physical inventory and orders share the versioned catalogue save.
+// Printing never changes stock. Only an explicit confirmed receipt does.
+function stockMessage(ok,message){notice(message);window.dispatchEvent(new CustomEvent('fle:stock-feedback',{detail:{ok,message}}))}
+function stockLog(p,kind,before,after,note){
+ const at=new Date().toISOString();p.stockUpdatedAt=at;
+ p.stockEvents=stockEvents([...(p.stockEvents||[]),{at,kind,delta:after-(before??0),before,after,note:String(note||'').slice(0,140)}]);
+}
+window.addEventListener('fle:stock-commit',e=>{
+ const d=e.detail||{};
+ if(!canEdit()){window.dispatchEvent(new CustomEvent('fle:stock-feedback',{detail:{ok:false,message:'Accès gestion nécessaire'}}));return}
+ if(saving||conflict){stockMessage(false,'Enregistrement ou conflit en cours : réessaie après synchronisation.');return}
+ if(d.type==='receive'){
+  const ordered=products.filter(p=>p.status==='active'&&p.qty>0);
+  if(!ordered.length){stockMessage(false,'Aucune quantité à réceptionner.');return}
+  if(ordered.some(p=>p.stock===null)){stockMessage(false,'Renseigne d’abord le stock des produits de cette commande.');return}
+  if(ordered.some(p=>!validStockNumber(p.qty)||!validStockNumber(p.stock+p.qty))){stockMessage(false,'Quantité de commande trop élevée.');return}
+  for(const p of ordered){const before=p.stock,amount=p.qty;p.stock+=amount;p.qty=0;stockLog(p,'Réception +'+amount,before,p.stock,'Commande reçue · '+amount+' '+p.unit)}
+  changed();stockMessage(true,ordered.length+' produit'+(ordered.length>1?'s':'')+' réceptionné'+(ordered.length>1?'s':'')+'. Sauvegarde en cours.');return;
+ }
+ const p=products.find(p=>p.id===d.id);if(!p){stockMessage(false,'Produit introuvable. Actualise le catalogue.');return}
+ const qty=Number(d.value),min=d.minimum===undefined?p.stockMin:Number(d.minimum),before=p.stock;let after=before;
+ if(!validStockNumber(min)||!validStockNumber(qty)){stockMessage(false,'Utilise des quantités entières positives.');return}
+ if(d.type==='set')after=qty;
+ else if(d.type==='add'||d.type==='remove'){
+  if(before===null){stockMessage(false,'Fais d’abord un inventaire du stock initial.');return}
+  if(qty<=0){stockMessage(false,'Indique une quantité supérieure à zéro.');return}
+  after=before+(d.type==='add'?qty:-qty);
+  if(!validStockNumber(after)){stockMessage(false,'Stock insuffisant ou quantité trop élevée.');return}
+ }else{stockMessage(false,'Opération inconnue.');return}
+ if(after===before&&min===p.stockMin){stockMessage(false,'Aucun changement à enregistrer.');return}
+ if(after!==before)stockLog(p,d.type==='set'?'Inventaire':d.type==='add'?'Entrée +'+qty:'Sortie -'+qty,before,after,d.note);
+ p.stock=after;p.stockMin=min;changed();stockMessage(true,'Stock enregistré : '+p.name+' · '+after+' '+p.unit+'.');
+});
+
 window.addEventListener('fle:request-state',()=>window.dispatchEvent(new CustomEvent('fle:state',{detail:{products:JSON.parse(JSON.stringify(products)),version,admin,server,dirty,saving,conflict}})));
 window.addEventListener('fle:restore-request',event=>{const snapshot=event.detail?.products;if(!Array.isArray(snapshot)||!snapshot.every(p=>p&&typeof p.name==='string'))return;if(dirty||saving||conflict){notice('Une sauvegarde est encore en cours. Réessaie après synchronisation.');return}if(!canEdit())return;products=sanitize(snapshot);changed();notice(server?'Restauration demandée : vérifie la synchronisation.':'Version restaurée localement.')});
 start();
