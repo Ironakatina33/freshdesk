@@ -321,3 +321,29 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{
 @media print{
  /* Existing print sheet remains owned by the previous print CSS. */
 }
+
+/* Same-tab return to City Hub: essential when apps are used by colleagues
+   who are not comfortable juggling browser tabs. */
+@media screen and (max-width:700px){
+ .fle-mobile-nav{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:2px!important}
+ .fle-mobile-nav .fle-mobile-hub{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  color:#647c6c!important;min-width:0;min-height:58px;padding:6px 2px;
+  border:0;border-radius:11px;background:transparent;
+  font-size:11px;font-weight:750;text-decoration:none;line-height:1.2;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+ }
+ .fle-mobile-nav .fle-mobile-hub svg{
+  width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;
+  stroke-linejoin:round;stroke-linecap:round;flex:none;
+ }
+ .fle-mobile-nav .fle-mobile-hub:active{background:#e6f5ed!important}
+ .fle-mobile-nav .fle-mobile-hub:focus-visible{outline:3px solid #69be8b;outline-offset:-3px}
+}
+@media screen and (max-width:375px){
+ .fle-mobile-nav .fle-mobile-hub{font-size:10px!important}
+}
+@media screen{
+ html[data-fle-theme=dark] .fle-mobile-nav .fle-mobile-hub{color:#b8d7c4!important}
+ html[data-fle-theme=dark] .fle-mobile-nav .fle-mobile-hub:active{background:#315d42!important}
+}
