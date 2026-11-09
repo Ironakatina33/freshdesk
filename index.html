@@ -316,6 +316,7 @@ for(const id of ['search','category','season','status'])$(id).addEventListener(i
 const workspace=document.querySelector('.workspace');workspace.addEventListener('click',e=>{const b=e.target.closest('[data-edit],[data-qty]');if(!b)return;if(b.dataset.edit){openEdit(b.dataset.edit);return}if(!canEdit())return;const p=products.find(x=>x.id===b.dataset.id);if(!p||p.status==='paused')return;p.qty=Math.max(0,p.qty+(b.dataset.qty==='plus'?1:-1));changed()});workspace.addEventListener('change',e=>{const id=e.target.dataset.qtyInput;if(!id||!canEdit())return;const p=products.find(x=>x.id===id);if(!p||p.status==='paused')return;p.qty=Math.max(0,Math.floor(Number(e.target.value)||0));changed()});
 $('productForm').onsubmit=e=>{e.preventDefault();if(!canEdit())return;const f=e.currentTarget,p={id:editing||`custom-${Date.now()}-${Math.random().toString(36).slice(2,8)}`,name:f.elements.name.value.trim(),category:f.elements.category.value,seasons:[...f.querySelectorAll('[name="seasons"]:checked')].map(c=>c.value),qty:Math.max(0,Math.floor(Number(f.elements.qty.value)||0)),unit:f.elements.unit.value,status:f.elements.status.value,note:f.elements.note.value.trim()};if(!p.name)return;if(editing){const i=products.findIndex(x=>x.id===editing);if(i>=0){
  const old=products[i];p.stock=old.stock;p.stockMin=old.stockMin;p.stockUpdatedAt=old.stockUpdatedAt;p.stockEvents=old.stockEvents;p.analytics=old.analytics;
+ if(old.analytics?.sentQty>0&&(old.unit!==p.unit||old.qty!==p.qty)){notice('Commande marquée envoyée : annule ce marquage ou réceptionne avant de changer les quantités.');return}
  if(old.unit!==p.unit){
   if(!confirm('Tu modifies l’unité de '+p.name+' ('+old.unit+' → '+p.unit+').\nLe stock devra être réinventorié et la quantité de commande sera remise à zéro. Continuer ?'))return;
   const at=new Date().toISOString();
@@ -328,7 +329,7 @@ $('productForm').onsubmit=e=>{e.preventDefault();if(!canEdit())return;const f=e.
 $('delete').onclick=()=>{if(!canEdit()||!editing||!confirm('Supprimer définitivement le produit et son historique de stock ?'))return;products=products.filter(p=>p.id!==editing);closeEdit();changed();notice('Produit supprimé')};$('add').onclick=()=>openEdit();$('closeEdit').onclick=closeEdit;$('editOverlay').onclick=e=>{if(e.target===$('editOverlay'))closeEdit()};
 $('adminBtn').onclick=()=>{if(admin){if(dirty||saving||conflict){notice('Attends la sauvegarde ou exporte tes données');return}admin=false;pin='';render();notice('Consultation activée')}else $('codeOverlay').classList.remove('hidden')};$('closeCode').onclick=()=>$('codeOverlay').classList.add('hidden');$('codeOverlay').onclick=e=>{if(e.target===$('codeOverlay'))$('codeOverlay').classList.add('hidden')};$('codeForm').onsubmit=async e=>{e.preventDefault();if(!server){notice('Configure Supabase dans config.js');return}pin=$('codeInput').value;$('unlock').disabled=true;$('codeError').classList.add('hidden');try{await request('check');admin=true;$('codeInput').value='';$('codeOverlay').classList.add('hidden');render();notice('Gestion activée')}catch(err){pin='';$('codeError').textContent='Code incorrect ou accès Supabase indisponible : '+err.message;$('codeError').classList.remove('hidden')}finally{$('unlock').disabled=false}};
 for(const id of ['topPrint','mainPrint','sidePrint'])$(id).onclick=printNow;window.addEventListener('beforeprint',buildPrint);
-$('reset').onclick=()=>{if(!canEdit()||!confirm('Remettre toutes les quantités à zéro ?'))return;products.forEach(p=>p.qty=0);changed();notice('Quantités réinitialisées')};$('exportBtn').onclick=exportData;$('importBtn').onclick=()=>$('importFile').click();$('importFile').onchange=async e=>{try{const file=e.target.files[0];if(!file)return;const data=JSON.parse(await file.text());if(!Array.isArray(data.products))throw Error('Fichier invalide');if(!canEdit()||!confirm('Remplacer tout le catalogue par cette sauvegarde ?'))return;{
+$('reset').onclick=()=>{if(!canEdit())return;if(products.some(p=>p.analytics?.sentQty>0)){notice('Commande déjà marquée envoyée : réceptionne ou annule le marquage avant de vider la commande.');return}if(!confirm('Remettre toutes les quantités à zéro ?'))return;products.forEach(p=>p.qty=0);changed();notice('Quantités réinitialisées')};$('exportBtn').onclick=exportData;$('importBtn').onclick=()=>$('importFile').click();$('importFile').onchange=async e=>{try{const file=e.target.files[0];if(!file)return;const data=JSON.parse(await file.text());if(!Array.isArray(data.products))throw Error('Fichier invalide');if(!canEdit()||!confirm('Remplacer tout le catalogue par cette sauvegarde ?'))return;{
   const former=new Map(products.map(p=>[p.id,p]));
   products=sanitize(data.products).map(p=>{
    const original=data.products.find(x=>x&&x.id===p.id);
@@ -365,6 +366,15 @@ window.addEventListener('fle:order-sent',()=>{
  if(!confirm('Marquer la commande comme envoyée ?\n\n'+fresh.length+' référence(s) seront enregistrées dans les statistiques. Ceci ne transmet pas le bon au fournisseur et ne modifie pas le stock.'))return;
  for(const p of fresh)window.FreshDeskAnalytics.addEvent(p,{type:'ordered',qty:p.qty,note:'Commande marquée envoyée'});
  changed();stockMessage(true,'Commande marquée envoyée : '+fresh.length+' références. Sauvegarde en cours.');
+});
+
+window.addEventListener('fle:order-cancel',()=>{
+ if(!canEdit()||saving||conflict){stockMessage(false,'Attends la fin de la synchronisation.');return}
+ const pending=products.filter(p=>p.analytics?.sentQty>0);
+ if(!pending.length){stockMessage(false,'Aucune commande marquée envoyée à annuler.');return}
+ if(!confirm('Annuler le marquage « envoyée » de '+pending.length+' référence(s) ?\n\nLes statistiques de commande seront corrigées. Le stock et les quantités préparées ne changent pas.'))return;
+ for(const p of pending)window.FreshDeskAnalytics.cancelOrder(p);
+ changed();stockMessage(true,'Marquage envoyé annulé. Sauvegarde en cours.');
 });
 
 window.addEventListener('fle:stock-commit',e=>{
