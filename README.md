@@ -90,6 +90,7 @@ Depuis **Stock**, clique sur le nom d'un produit pour ouvrir sa fiche dédiée. 
 
 1. Saisis le stock initial dans l'inventaire (sa date d'entrée initiale reste **inconnue**).
 2. Prépare la commande comme d'habitude, puis, en **Accès gestion**, clique **« Marquer comme envoyée »** dans **Ma commande**. Cette action enregistre les quantités pour les statistiques mais **n'envoie rien au fournisseur**, ne modifie pas le stock et n'imprime pas à elle seule un bon.
+   Si les quantités ont été marquées envoyées par erreur, le bouton **« Annuler l’envoi enregistré »** retire leur contribution aux statistiques (en conservant une trace de l'annulation), sans modifier le stock. Tant que la commande est marquée envoyée, ses quantités ne peuvent pas être modifiées ni remises à zéro.
 3. Lors de l'arrivée réelle des produits, **« Réceptionner la commande »** : ce geste enregistre des réceptions datées, ajoute le stock et remet les quantités commandées à zéro. La commande peut être réceptionnée même si elle n'a pas été marquée envoyée ; dans ce cas seules les quantités *réceptionnées* sont comptées.
 4. Enregistre les sorties via l'inventaire. La nouvelle action **« Perte / casse »** est comptée séparément des autres sorties. Un changement de stock par inventaire/correction n'est pas comptabilisé comme une vente ou une perte.
 
