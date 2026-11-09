@@ -318,7 +318,19 @@ $('productForm').onsubmit=e=>{e.preventDefault();if(!canEdit())return;const f=e.
 $('delete').onclick=()=>{if(!canEdit()||!editing||!confirm('Supprimer définitivement le produit et son historique de stock ?'))return;products=products.filter(p=>p.id!==editing);closeEdit();changed();notice('Produit supprimé')};$('add').onclick=()=>openEdit();$('closeEdit').onclick=closeEdit;$('editOverlay').onclick=e=>{if(e.target===$('editOverlay'))closeEdit()};
 $('adminBtn').onclick=()=>{if(admin){if(dirty||saving||conflict){notice('Attends la sauvegarde ou exporte tes données');return}admin=false;pin='';render();notice('Consultation activée')}else $('codeOverlay').classList.remove('hidden')};$('closeCode').onclick=()=>$('codeOverlay').classList.add('hidden');$('codeOverlay').onclick=e=>{if(e.target===$('codeOverlay'))$('codeOverlay').classList.add('hidden')};$('codeForm').onsubmit=async e=>{e.preventDefault();if(!server){notice('Configure Supabase dans config.js');return}pin=$('codeInput').value;$('unlock').disabled=true;$('codeError').classList.add('hidden');try{await request('check');admin=true;$('codeInput').value='';$('codeOverlay').classList.add('hidden');render();notice('Gestion activée')}catch(err){pin='';$('codeError').textContent='Code incorrect ou accès Supabase indisponible : '+err.message;$('codeError').classList.remove('hidden')}finally{$('unlock').disabled=false}};
 for(const id of ['topPrint','mainPrint','sidePrint'])$(id).onclick=printNow;window.addEventListener('beforeprint',buildPrint);
-$('reset').onclick=()=>{if(!canEdit()||!confirm('Remettre toutes les quantités à zéro ?'))return;products.forEach(p=>p.qty=0);changed();notice('Quantités réinitialisées')};$('exportBtn').onclick=exportData;$('importBtn').onclick=()=>$('importFile').click();$('importFile').onchange=async e=>{try{const file=e.target.files[0];if(!file)return;const data=JSON.parse(await file.text());if(!Array.isArray(data.products))throw Error('Fichier invalide');if(!canEdit()||!confirm('Remplacer tout le catalogue par cette sauvegarde ?'))return;products=sanitize(data.products);changed();notice('Catalogue importé')}catch(err){notice(err.message)}finally{e.target.value=''}};
+$('reset').onclick=()=>{if(!canEdit()||!confirm('Remettre toutes les quantités à zéro ?'))return;products.forEach(p=>p.qty=0);changed();notice('Quantités réinitialisées')};$('exportBtn').onclick=exportData;$('importBtn').onclick=()=>$('importFile').click();$('importFile').onchange=async e=>{try{const file=e.target.files[0];if(!file)return;const data=JSON.parse(await file.text());if(!Array.isArray(data.products))throw Error('Fichier invalide');if(!canEdit()||!confirm('Remplacer tout le catalogue par cette sauvegarde ?'))return;{
+  const former=new Map(products.map(p=>[p.id,p]));
+  products=sanitize(data.products).map(p=>{
+   const original=data.products.find(x=>x&&x.id===p.id);
+   const previous=former.get(p.id);
+   if(previous&&original&&!Object.prototype.hasOwnProperty.call(original,'stock')){
+    p.stock=previous.stock;p.stockMin=previous.stockMin;
+    p.stockUpdatedAt=previous.stockUpdatedAt;p.stockEvents=previous.stockEvents;
+   }
+   return p;
+  });
+  changed();notice('Catalogue importé (stocks existants conservés si la sauvegarde est ancienne)');
+ }}catch(err){notice(err.message)}finally{e.target.value=''}};
 $('refresh').onclick=async()=>{if(server){if((dirty||saving||conflict)&&!confirm('Des modifications ne sont pas encore enregistrées. Les remplacer par les données du serveur ?'))return;await loadRemote(true)}else{render();notice('Données locales actualisées')}};
 window.addEventListener('beforeunload',e=>{if(server&&(dirty||saving)){e.preventDefault();e.returnValue=''}});
 async function start(){render();const conf=window.FRESHDESK_CONFIG||{};if(!/^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(conf.url||'')||!(/^(sb_publishable_|eyJ)/.test(conf.publishableKey||''))){setSync('Mode local','Configure config.js pour synchroniser');return}server=true;render();if(!window.supabase?.createClient){setSync('Erreur réseau','Supabase JS indisponible','err');return}client=window.supabase.createClient(conf.url,conf.publishableKey,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});await loadRemote(true);setInterval(async()=>{if(!client||document.hidden||saving)return;if(dirty){if(!conflict)save();return}try{const {data}=await client.from('freshdesk_state').select('version').eq('id',1).single();if(data&&Number(data.version)>version)await loadRemote()}catch{}},15000)}
@@ -357,7 +369,25 @@ window.addEventListener('fle:stock-commit',e=>{
 });
 
 window.addEventListener('fle:request-state',()=>window.dispatchEvent(new CustomEvent('fle:state',{detail:{products:JSON.parse(JSON.stringify(products)),version,admin,server,dirty,saving,conflict}})));
-window.addEventListener('fle:restore-request',event=>{const snapshot=event.detail?.products;if(!Array.isArray(snapshot)||!snapshot.every(p=>p&&typeof p.name==='string'))return;if(dirty||saving||conflict){notice('Une sauvegarde est encore en cours. Réessaie après synchronisation.');return}if(!canEdit())return;products=sanitize(snapshot);changed();notice(server?'Restauration demandée : vérifie la synchronisation.':'Version restaurée localement.')});
+window.addEventListener('fle:restore-request',event=>{const snapshot=event.detail?.products;if(!Array.isArray(snapshot)||!snapshot.every(p=>p&&typeof p.name==='string'))return;if(dirty||saving||conflict){notice('Une sauvegarde est encore en cours. Réessaie après synchronisation.');return}if(!canEdit())return;{
+  const previous=new Map(products.map(p=>[p.id,p]));
+  const raw=new Map(snapshot.map(p=>[String(p.id),p]));
+  products=sanitize(snapshot).map(p=>{
+   const old=previous.get(p.id),original=raw.get(p.id);
+   if(!old)return p;
+   if(original&&!Object.prototype.hasOwnProperty.call(original,'stock')){
+    p.stock=old.stock;p.stockMin=old.stockMin;
+    p.stockUpdatedAt=old.stockUpdatedAt;p.stockEvents=old.stockEvents;
+   }else{
+    const desired=p.stock;
+    p.stockEvents=old.stockEvents;
+    if(desired!==old.stock&&desired!==null)stockLog(p,'Restauration historique',old.stock,desired,'Retour à une ancienne version');
+   }
+   return p;
+  });
+  changed();
+  notice(server?'Restauration demandée : vérifie la synchronisation.':'Version restaurée localement.');
+ }});
 start();
 });
 </script><script src="freshdesk-v5.js?v=5.0.0" defer></script><script src="freshdesk-mobile.js?v=6.0.0" defer></script><script src="freshdesk-history.js?v=1.1.0" defer></script></body></html>
