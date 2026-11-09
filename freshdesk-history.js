@@ -48,8 +48,8 @@
    if(!after){changes.push({label:before.name,description:'Produit supprimé'});continue}
    const parts=[];
    if(before.qty!==after.qty)parts.push('Commande '+before.qty+' → '+after.qty);
-   if(before.stock!==after.stock)parts.push('Stock '+(before.stock??'non renseigné')+' → '+(after.stock??'non renseigné'));
-   if(before.stockMin!==after.stockMin)parts.push('Seuil de stock '+(before.stockMin||0)+' → '+(after.stockMin||0));
+   if((before.stock??null)!==(after.stock??null))parts.push('Stock '+(before.stock??'non renseigné')+' → '+(after.stock??'non renseigné'));
+   if((before.stockMin||0)!==(after.stockMin||0))parts.push('Seuil de stock '+(before.stockMin||0)+' → '+(after.stockMin||0));
    if(before.name!==after.name)parts.push('Nom : '+before.name+' → '+after.name);
    if(before.category!==after.category)parts.push('Catégorie modifiée');
    if(before.unit!==after.unit)parts.push('Unité : '+before.unit+' → '+after.unit);
