@@ -289,7 +289,7 @@ function filtered(){const q=$('search').value.trim().toLocaleLowerCase('fr'),cat
 function qtyHtml(p){
  let dis=p.status==='paused'||(server&&!admin);
  const known=p.stock!==null;
- const low=known&&p.stockMin>0&&p.stock<=p.stockMin;
+ const low=known&&(p.stock===0||(p.stockMin>0&&p.stock<=p.stockMin));
  const current=known?`${p.stock} ${h(p.unit)}`:'À inventorier';
  const after=known&&p.qty>0?` · Après réception : ${p.stock+p.qty}`:'';
  return `<div class="fle-qty-stock"><div class="qty"><button data-qty="minus" data-id="${h(p.id)}" ${dis?'disabled':''} aria-label="Moins">−</button><input type="number" min="0" step="1" inputmode="numeric" data-qty-input="${h(p.id)}" value="${p.qty}" ${dis?'disabled':''} aria-label="Quantité ${h(p.name)}"><button data-qty="plus" data-id="${h(p.id)}" ${dis?'disabled':''} aria-label="Plus">+</button></div><small class="fle-stock-inline ${low?'is-low':!known?'is-unknown':''}" title="Stock physique enregistré, la commande ne le modifie pas">En stock : ${current}${view==='order'?after:''}</small></div>`;
@@ -317,7 +317,7 @@ const workspace=document.querySelector('.workspace');workspace.addEventListener(
 $('productForm').onsubmit=e=>{e.preventDefault();if(!canEdit())return;const f=e.currentTarget,p={id:editing||`custom-${Date.now()}-${Math.random().toString(36).slice(2,8)}`,name:f.elements.name.value.trim(),category:f.elements.category.value,seasons:[...f.querySelectorAll('[name="seasons"]:checked')].map(c=>c.value),qty:Math.max(0,Math.floor(Number(f.elements.qty.value)||0)),unit:f.elements.unit.value,status:f.elements.status.value,note:f.elements.note.value.trim()};if(!p.name)return;if(editing){const i=products.findIndex(x=>x.id===editing);if(i>=0){
  const old=products[i];p.stock=old.stock;p.stockMin=old.stockMin;p.stockUpdatedAt=old.stockUpdatedAt;p.stockEvents=old.stockEvents;
  if(old.unit!==p.unit){
-  if(!confirm('Tu modifies l’unité de '+p.name+' ('+old.unit+' → '+p.unit+').\\nLe stock devra être réinventorié et la quantité de commande sera remise à zéro. Continuer ?'))return;
+  if(!confirm('Tu modifies l’unité de '+p.name+' ('+old.unit+' → '+p.unit+').\nLe stock devra être réinventorié et la quantité de commande sera remise à zéro. Continuer ?'))return;
   const at=new Date().toISOString();
   p.qty=0;p.stock=null;p.stockMin=0;p.stockUpdatedAt=at;
   p.stockEvents=stockEvents([...(old.stockEvents||[]),{at,kind:'Changement unité',delta:0,before:old.stock,after:null,note:old.unit+' → '+p.unit}]);
