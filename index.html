@@ -410,7 +410,10 @@ window.addEventListener('fle:restore-request',event=>{const snapshot=event.detai
    }else{
     const desired=p.stock;
     p.stockEvents=old.stockEvents;p.analytics=old.analytics;
-    if(desired!==old.stock&&desired!==null)stockLog(p,'Restauration historique',old.stock,desired,'Retour à une ancienne version');
+    if(desired!==old.stock&&desired!==null){
+     window.FreshDeskAnalytics.addEvent(p,{type:'adjust',qty:Math.abs(desired-(old.stock??0)),before:old.stock,after:desired,note:'Restauration historique'});
+     stockLog(p,'Restauration historique',old.stock,desired,'Retour à une ancienne version');
+    }
    }
    return p;
   });
