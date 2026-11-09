@@ -1,0 +1,282 @@
+/* FreshDesk · Stock V1 — visual system based on the photographic FreshDesk V4.
+   Only screen styles: printed A4 orders remain unchanged. */
+@media screen{
+ body.fle-stock-mode .tabs,
+ body.fle-stock-mode .stats,
+ body.fle-stock-mode .workspace{display:none!important}
+ body:not(.fle-stock-mode) .fle-stock-panel{display:none!important}
+ .fle-stock-panel{
+  border:1px solid #dce8e0;background:#fff;border-radius:17px;
+  box-shadow:0 7px 25px #183b2c10;
+  overflow:hidden;margin-bottom:24px;scroll-margin-top:18px;
+  color:#213d33;
+ }
+ .fle-stock-head{
+  display:flex;justify-content:space-between;align-items:center;
+  gap:20px;padding:27px clamp(17px,3vw,31px) 25px;
+  border-bottom:1px solid #e0eae3;
+ }
+ .fle-stock-eyebrow{
+  display:block;font-size:10px;font-weight:850;letter-spacing:.13em;
+  color:#27895b;margin-bottom:9px;
+ }
+ .fle-stock-head h2{
+  font:800 clamp(26px,3vw,35px)/1.15 "Manrope","Segoe UI",sans-serif;
+  letter-spacing:-.065em;color:#203e33;margin:0 0 8px;
+ }
+ .fle-stock-head p{font-size:13px;line-height:1.6;color:#6c8379;margin:0;max-width:600px}
+ .fle-stock-receive{
+  min-height:48px;min-width:213px;display:inline-flex;
+  align-items:center;justify-content:center;gap:8px;padding:11px 17px;
+  background:#196d4d;border:1px solid #196d4d;border-radius:11px;
+  color:#fff;font-size:12px;font-weight:800;box-shadow:0 6px 19px #123c2519;
+  white-space:normal;text-align:center;
+ }
+ .fle-stock-receive:not(:disabled):hover{background:#10593f}
+ .fle-stock-receive:disabled{opacity:.43;cursor:not-allowed;box-shadow:none}
+ .fle-stock-stats{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;padding:17px clamp(17px,3vw,31px);
+  background:#fafcfb;
+ }
+ .fle-stock-stats>div{
+  min-width:0;background:#fff;border:1px solid #deebe2;
+  border-radius:12px;padding:16px 18px;
+ }
+ .fle-stock-stats small{
+  display:block;color:#677e73;font-size:11px;font-weight:750;line-height:1.35;
+ }
+ .fle-stock-stats strong{
+  display:block;color:#1c5640;font:800 clamp(23px,2.8vw,31px)/1.1 "Manrope",sans-serif;
+  letter-spacing:-.06em;margin-top:9px;
+ }
+ .fle-stock-stats>div:nth-child(2){border-top:3px solid #d98a49}
+ .fle-stock-stats>div:nth-child(2) strong{color:#ad602a}
+ .fle-stock-stats>div:nth-child(3){border-top:3px solid #7a9a91}
+ .fle-stock-manage-hint{
+  margin:0;padding:12px 29px;font-size:12px;line-height:1.5;
+  color:#7b5b30;background:#fff7e9;border-bottom:1px solid #f2dfc7;
+ }
+ .fle-stock-filters{
+  display:flex;align-items:center;gap:10px;
+  padding:18px clamp(17px,3vw,31px) 14px;
+ }
+ .fle-stock-search{flex:1;min-width:150px;max-width:520px}
+ .fle-stock-search input,.fle-stock-filters select{
+  width:100%;min-height:47px;padding:10px 14px;min-width:0;
+  background:#fff;color:#22483a;border-radius:10px;
+  border:1px solid #d6e6db;font-size:13px;font-family:"DM Sans",sans-serif;
+ }
+ .fle-stock-filters select{max-width:210px}
+ .fle-stock-search input:focus,.fle-stock-filters select:focus{
+  outline:3px solid #8bd4ab66!important;border-color:#69ba88;
+ }
+ .fle-stock-count{
+  flex:none;margin-left:auto;color:#7b8f82;font-size:11px;font-weight:750;
+ }
+ .fle-stock-rows{padding:0 clamp(17px,3vw,31px) 25px}
+ .fle-stock-item{
+  display:grid;grid-template-columns:45px minmax(0,1fr) minmax(145px,210px) auto;
+  align-items:center;gap:12px;padding:14px 6px;
+  border-bottom:1px solid #ebf0eb;
+ }
+ .fle-stock-item:last-child{border-bottom:0}
+ .fle-stock-item-icon{
+  width:43px;height:43px;display:grid;place-items:center;
+  background:#f0f5ee;border-radius:10px;font-size:22px;
+ }
+ .fle-stock-item-info,.fle-stock-amount{min-width:0}
+ .fle-stock-item-info strong{
+  display:block;font-size:14px;line-height:1.35;font-weight:800;color:#214535;
+ }
+ .fle-stock-item-info small{
+  display:block;font-size:11px;line-height:1.5;color:#809188;margin-top:4px;
+ }
+ .fle-stock-ordered{
+  display:inline-block;margin-top:6px;
+  font-size:11px;font-weight:750;color:#246e52;
+ }
+ .fle-stock-amount strong{
+  display:block;color:#1c5b3b;
+  font:800 16px/1.3 "Manrope","Segoe UI",sans-serif;
+  overflow-wrap:anywhere;
+ }
+ .fle-stock-amount small{
+  color:#648779;font-size:10px;line-height:1.4;display:block;margin-top:5px;
+ }
+ .fle-stock-alert,.fle-stock-unset{
+  display:inline-block;margin-top:4px;padding:4px 7px;border-radius:6px;
+  font-size:10px;font-weight:850;
+ }
+ .fle-stock-alert{background:#fff0dd;color:#a45a24}
+ .fle-stock-unset{background:#eef2f3;color:#617381}
+ .fle-stock-item.is-low .fle-stock-amount strong{color:#ad602a}
+ .fle-stock-adjust{
+  min-width:105px;min-height:44px;display:inline-flex;
+  align-items:center;justify-content:center;
+  background:#e9f6ed;color:#1a6847;border:1px solid #c5e3d0;
+  border-radius:10px;padding:9px 13px;font-size:12px;font-weight:850;
+ }
+ .fle-stock-adjust:hover{background:#d8eddf}
+ .fle-stock-empty{
+  text-align:center;padding:34px 15px;color:#677e73;font-size:13px;
+  background:#f9fcf9;border-radius:12px;
+ }
+ .fle-qty-stock{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+ .fle-qty-stock .qty{min-width:max-content}
+ .fle-stock-inline{
+  display:block;color:#387459;font-size:10px;font-weight:750;
+  line-height:1.35;max-width:190px;
+ }
+ .fle-stock-inline.is-low{color:#a86631}
+ .fle-stock-inline.is-unknown{color:#74868f}
+ .product-table .fle-qty-stock{padding:2px 0}
+ .compact-list .fle-qty-stock,.card-grid .fle-qty-stock{max-width:100%}
+ .side [data-stock-open]{position:relative}
+ .side [data-stock-open].active{
+  background:#e8f4ed!important;color:#116b45!important;
+  box-shadow:inset 3px 0 #20875a!important;
+ }
+ .tabs [data-stock-open].active{
+  background:#e7f5ec;color:#166945;box-shadow:none;
+ }
+ .fle-stock-dialog{
+  border:1px solid #d6e5db;border-radius:18px;
+  background:#fff;color:#244036;
+  box-shadow:0 32px 90px #0b281e50;
+  padding:0;width:min(480px,calc(100% - 24px));max-height:min(90dvh,820px);
+ }
+ .fle-stock-dialog::backdrop{background:#0c2019aa;backdrop-filter:blur(3px)}
+ .fle-stock-dialog form{padding:24px;display:flex;flex-direction:column;gap:13px}
+ .fle-stock-dialog header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+ .fle-stock-dialog header>span{
+  font-size:10px;letter-spacing:.12em;font-weight:850;color:#248059;
+ }
+ .fle-stock-dialog .fle-stock-close{
+  border:0;background:transparent;color:#5e796d;
+  min-width:44px;min-height:44px;font-size:20px;border-radius:9px;
+ }
+ .fle-stock-dialog h2{
+  font:800 27px/1.16 "Manrope",sans-serif;letter-spacing:-.05em;
+  margin:0;color:#183f2c;overflow-wrap:anywhere;
+ }
+ .fle-stock-dialog p{font-size:12px;line-height:1.5;color:#6b8578;margin:0}
+ .fle-stock-dialog label{
+  display:flex;flex-direction:column;gap:7px;
+  color:#3d6251;font-weight:800;font-size:12px;
+ }
+ .fle-stock-dialog input,.fle-stock-dialog select{
+  width:100%;min-height:47px;padding:9px 12px;
+  background:#fff;color:#233e34;border:1px solid #d0e1d5;
+  border-radius:10px;font-size:16px;
+ }
+ .fle-stock-dialog .fle-stock-error{color:#b14b31;font-weight:800}
+ .fle-stock-submit{
+  min-height:48px;border-radius:11px;border:1px solid #176f48;
+  background:#176f48;color:#fff;font-size:13px;font-weight:850;
+ }
+ .fle-stock-submit:hover{background:#0f5739}
+ .fle-stock-movements{border-top:1px solid #e7eee8;padding-top:13px;margin-top:7px}
+ .fle-stock-movements>strong{font-size:12px;color:#456456}
+ .fle-stock-movements ul{padding-left:19px;margin:10px 0 0}
+ .fle-stock-movements li{font-size:11px;color:#658579;margin-bottom:9px}
+ .fle-stock-movements li strong{color:#2f6750}
+ .fle-stock-movements li small{display:block;font-size:11px;margin-top:2px;color:#7d9588}
+ .sr-only{position:absolute!important;width:1px;height:1px;clip:rect(0,0,0,0);white-space:nowrap;overflow:hidden}
+}
+@media screen and (max-width:700px){
+ .fle-mobile-nav{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:2px!important}
+ .fle-mobile-nav [data-stock-open]{
+  position:relative;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:4px;min-width:0;min-height:55px;
+  color:#6e8880;font-size:10px;font-weight:750;border:0;border-radius:11px;
+  background:transparent;padding:5px 2px;
+ }
+ .fle-mobile-nav [data-stock-open] svg{
+  width:22px;height:22px;stroke:currentColor;stroke-width:1.8;
+  fill:none;stroke-linecap:round;stroke-linejoin:round;
+ }
+ .fle-mobile-nav [data-stock-open].active{
+  background:#e2f3e9!important;color:#0e6343!important;
+ }
+ .fle-stock-head{padding:18px 15px;flex-direction:column;align-items:stretch;gap:13px}
+ .fle-stock-head h2{font-size:27px}
+ .fle-stock-head p{font-size:12px}
+ .fle-stock-receive{width:100%;min-width:0;min-height:48px}
+ .fle-stock-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:13px 12px}
+ .fle-stock-stats>div{padding:13px}
+ .fle-stock-stats strong{font-size:26px}
+ .fle-stock-manage-hint{padding:10px 13px}
+ .fle-stock-filters{
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.8fr);
+  padding:13px 12px;gap:8px;
+ }
+ .fle-stock-search{min-width:0;max-width:none}
+ .fle-stock-search input,.fle-stock-filters select{
+  min-width:0;max-width:none;min-height:48px;font-size:16px;
+ }
+ .fle-stock-count{grid-column:1/-1;margin:0}
+ .fle-stock-rows{padding:0 12px 19px}
+ .fle-stock-item{
+  grid-template-columns:40px minmax(0,1fr) auto;gap:8px 10px;
+  grid-template-areas:"icon info amount" "action action action";
+  padding:14px 0;
+ }
+ .fle-stock-item-icon{grid-area:icon;width:40px;height:40px;font-size:20px}
+ .fle-stock-item-info{grid-area:info}
+ .fle-stock-item-info strong{font-size:13px}
+ .fle-stock-amount{grid-area:amount;text-align:right;max-width:145px}
+ .fle-stock-amount strong{font-size:13px}
+ .fle-stock-amount small{font-size:9px}
+ .fle-stock-adjust{grid-area:action;width:100%;min-height:45px}
+ .fle-stock-dialog{
+  margin:auto 0 0;width:100%;max-height:88dvh;
+  border-radius:18px 18px 0 0;
+ }
+ .fle-stock-dialog form{padding:16px 17px calc(18px + env(safe-area-inset-bottom,0px));gap:12px}
+ .fle-qty-stock{width:100%}
+ .fle-stock-inline{max-width:100%;font-size:11px}
+ .compact-list .fle-qty-stock{width:100%;max-width:none}
+ .compact-list .fle-stock-inline{padding-top:2px}
+}
+@media screen and (max-width:370px){
+ .fle-stock-head h2{font-size:24px}
+ .fle-stock-amount{max-width:105px}
+ .fle-stock-amount strong{font-size:12px}
+ .fle-mobile-nav [data-stock-open]{font-size:10px}
+}
+@media screen{
+ html[data-fle-theme=dark] .fle-stock-panel,
+ html[data-fle-theme=dark] .fle-stock-dialog{
+  background:#1a2c34;color:#e7f2e9;border-color:#344d4f;
+ }
+ html[data-fle-theme=dark] .fle-stock-head,
+ html[data-fle-theme=dark] .fle-stock-item{border-color:#344d4f}
+ html[data-fle-theme=dark] .fle-stock-head h2,
+ html[data-fle-theme=dark] .fle-stock-item-info strong,
+ html[data-fle-theme=dark] .fle-stock-dialog h2{color:#e8f6ec}
+ html[data-fle-theme=dark] .fle-stock-stats{background:#172b31}
+ html[data-fle-theme=dark] .fle-stock-stats>div{background:#203a3d;border-color:#405d53}
+ html[data-fle-theme=dark] .fle-stock-stats strong{color:#a5e7bb}
+ html[data-fle-theme=dark] .fle-stock-stats>div:nth-child(2) strong{color:#e6b57f}
+ html[data-fle-theme=dark] .fle-stock-amount strong{color:#a9eac3}
+ html[data-fle-theme=dark] .fle-stock-item.is-low .fle-stock-amount strong{color:#e6b57f}
+ html[data-fle-theme=dark] .fle-stock-adjust{background:#2a5541;color:#daf9e6;border-color:#48715b}
+ html[data-fle-theme=dark] .fle-stock-dialog input,
+ html[data-fle-theme=dark] .fle-stock-dialog select,
+ html[data-fle-theme=dark] .fle-stock-filters input,
+ html[data-fle-theme=dark] .fle-stock-filters select{
+  background:#233a3e;color:#e5f5ed;border-color:#476258;
+ }
+ html[data-fle-theme=dark] .fle-stock-empty{background:#20373d;color:#c2d5c8}
+ html[data-fle-theme=dark] .fle-stock-movements{border-color:#41574d}
+ html[data-fle-theme=dark] .fle-stock-movements>strong{color:#e0f4e4}
+ html[data-fle-theme=dark] .fle-stock-movements li strong{color:#a3dfbb}
+ html[data-fle-theme=dark] .fle-stock-dialog label{color:#bedbc6}
+ html[data-fle-theme=dark] .fle-stock-dialog p{color:#b5cfc2}
+ html[data-fle-theme=dark] .fle-mobile-nav [data-stock-open]{color:#aac4b9}
+ html[data-fle-theme=dark] .fle-mobile-nav [data-stock-open].active{background:#29543e!important;color:#e7f9ea!important}
+}
+@media print{
+ #fleStockPanel,#fleStockDialog,[data-stock-open],.fle-stock-inline{display:none!important}
+}
