@@ -28,7 +28,7 @@ test('V5 scripts parse correctly, including the preserved inline application',()
 });
 test('V5 design and night theme are versioned and accessible',()=>{
  const html=read('index.html'),css=read('freshdesk-v5.css'),js=read('freshdesk-v5.js');
- assert.match(html,/freshdesk-v5\.css\?v=5\.0\.0/);
+ assert.match(html,/freshdesk-v5\.css\?v=\d+\.\d+\.\d+/);
  assert.match(html,/freshdesk-v5\.js\?v=5\.0\.0/);
  assert.match(css,/html\[data-fle-theme="dark"\]/);
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
@@ -67,4 +67,50 @@ test('V5 theme toggle is local-only (no API or order writes)',()=>{
  assert.equal(store.get('freshdesk.theme.v5'),'dark');
  listeners.click();
  assert.equal(root.dataset.fleTheme,'light');
+});
+
+test('FreshDesk stock and insights modules are present, parse, and are cached with the same versions as HTML',()=>{
+ const html=read('index.html');
+ const sw=read('freshdesk-sw.js');
+ for(const path of ['freshdesk-stock.js','freshdesk-insights.js','freshdesk-analytics-core.js',
+                    'freshdesk-history.js','freshdesk-mobile.js']){
+  assert.doesNotThrow(()=>new Script(read(path)),path+' syntax');
+  const match=html.match(new RegExp('src="'+path.replaceAll('.','\\.')+'\\?v=([0-9.]+)"'));
+  assert.ok(match,'Missing script '+path);
+  assert.ok(sw.includes('./'+path+'?v='+match[1]),'Service worker is caching an old version of '+path);
+ }
+ for(const path of ['freshdesk-stock.css','freshdesk-insights.css']){
+  const match=html.match(new RegExp('href="'+path.replaceAll('.','\\.')+'\\?v=([0-9.]+)"'));
+  assert.ok(match,'Missing stylesheet '+path);
+  assert.ok(sw.includes('./'+path+'?v='+match[1]),'Service worker is caching an old version of '+path);
+  assert.ok(read(path).trim().length>100,'Empty stylesheet '+path);
+ }
+ assert.match(html,/fle:order-sent/);
+ assert.match(html,/fle:order-cancel/);
+ assert.match(html,/fle:stock-commit/);
+ assert.match(read('freshdesk-stock.js'),/data-insights-open/);
+});
+
+test('Statistics distinguish sent orders, receipt, exits, losses and cancellation',()=>{
+ const host={};
+ runInNewContext(read('freshdesk-analytics-core.js'),{window:host});
+ const api=host.FreshDeskAnalytics;
+ assert.ok(api&&typeof api.addEvent==='function'&&typeof api.cancelOrder==='function');
+ const p={id:'test-apple',name:'Pomme',unit:'Colis',stock:10,stockEvents:[]};
+ p.analytics=api.normalize(p);
+ api.addEvent(p,{type:'ordered',qty:6,at:'2026-08-10T10:00:00Z'});
+ assert.equal(p.stock,10,'Marking an order as sent must not move physical stock');
+ assert.equal(p.analytics.months[0].ordered,6);
+ assert.equal(api.cancelOrder(p,'2026-08-11T10:00:00Z'),true);
+ assert.equal(p.analytics.months[0].ordered,0);
+ api.addEvent(p,{type:'ordered',qty:6,at:'2026-08-12T10:00:00Z'});
+ api.addEvent(p,{type:'received',qty:6,at:'2026-08-15T10:00:00Z',before:10,after:16});
+ assert.equal(p.analytics.months[0].received,6);
+ assert.equal(p.analytics.sentQty,0);
+ api.addEvent(p,{type:'exit',qty:4,at:'2026-08-16T10:00:00Z',before:16,after:12});
+ api.addEvent(p,{type:'waste',qty:2,at:'2026-08-17T10:00:00Z',before:12,after:10});
+ assert.equal(p.analytics.months[0].exit,4);
+ assert.equal(p.analytics.months[0].waste,2);
+ assert.equal(api.seasonFor('2026-08-16T10:00:00Z'),'Été');
+ assert.equal(api.normalize(JSON.parse(JSON.stringify(p))).months[0].ordered,6);
 });
