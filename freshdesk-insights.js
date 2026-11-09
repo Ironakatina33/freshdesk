@@ -45,7 +45,7 @@
   const unit=esc(p.unit);
   return '<div class="fle-ins-kpis">'+
    totalCard('Stock actuel',known(p)?fr.format(p.stock):'—',known(p)?unit:'À inventorier','is-hero')+
-   totalCard('Colis commandés*',fr.format(all.ordered),unit+' marqués envoyés')+
+   totalCard('Quantité commandée*',fr.format(all.ordered),unit+' marqués envoyés')+
    totalCard('Réceptionnés',fr.format(all.received),unit+' reçus')+
    totalCard('Sorties saisies',fr.format(all.exit),unit+' déclarés')+
    totalCard('Pertes / casse',fr.format(all.waste),unit+' déclarés','is-warn')+
