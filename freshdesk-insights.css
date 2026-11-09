@@ -315,3 +315,11 @@
  }
 }
 @media print{#fleStockCancelSent{display:none!important}}
+
+@media screen{
+ .fle-ins-event-icon.cancel{background:#f1eae1;color:#8c6338}
+ .fle-ins-event-qty.cancel{color:#8c6338}
+ html[data-fle-theme=dark] .fle-ins-event-icon.cancel{
+  background:#4b4036;color:#f2cda2
+ }
+}
