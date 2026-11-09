@@ -294,3 +294,23 @@
  .tabs [data-stock-open]{display:none!important}
  .compact-list .list-line .fle-qty-stock{width:100%}
 }
+
+@media screen{
+ .fle-stock-receive-order{
+  background:#e7f5eb!important;color:#176d4a!important;
+  border:1px solid #b8d9c5!important;
+  font-size:12px;font-weight:850;min-height:44px;
+  border-radius:10px!important;white-space:normal;text-align:center;
+ }
+ .fle-stock-receive-order:not(:disabled):hover{background:#d7eedf!important}
+ .fle-stock-receive-order:disabled{opacity:.5}
+ html[data-fle-theme=dark] .fle-stock-receive-order{
+  color:#d6f3e0!important;background:#28513c!important;border-color:#497d5b!important
+ }
+}
+@media screen and (max-width:700px){
+ .workspace-head .toolbar-actions .fle-stock-receive-order{
+  grid-column:1/-1;min-height:47px;font-size:12px!important
+ }
+}
+@media print{#fleStockReceiveOrder{display:none!important}}
