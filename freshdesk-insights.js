@@ -94,12 +94,12 @@
   const events=A().normalize(p).events.filter(e=>e.unit===p.unit&&relativePeriod(e.at)).slice(-80).reverse();
   if(!events.length)return '<p class="fle-ins-empty">Aucun mouvement enregistré sur cette période. Les anciennes commandes ne peuvent pas être reconstituées.</p>';
   const labels=A().TYPES;
-  const icons={ordered:'↗',received:'↓',exit:'↑',waste:'!',entry:'+',inventory:'≡',adjust:'±'};
+  const icons={ordered:'↗',cancel:'×',received:'↓',exit:'↑',waste:'!',entry:'+',inventory:'≡',adjust:'±'};
   return '<div class="fle-ins-timeline">'+events.map(e=>
    '<div class="fle-ins-event"><span class="fle-ins-event-icon '+esc(e.type)+'">'+icons[e.type]+'</span>'+
    '<div class="fle-ins-event-desc"><strong>'+esc(labels[e.type]||e.type)+'</strong>'+
    '<small>'+esc(date(e.at))+'</small>'+(e.note?'<p>'+esc(e.note)+'</p>':'')+'</div>'+
-   '<strong class="fle-ins-event-qty '+esc(e.type)+'">'+(e.type==='exit'||e.type==='waste'?'−':e.type==='received'||e.type==='entry'?'+':'')+
+   '<strong class="fle-ins-event-qty '+esc(e.type)+'">'+(e.type==='exit'||e.type==='waste'||e.type==='cancel'?'−':e.type==='received'||e.type==='entry'?'+':'')+
    esc(fr.format(e.qty))+' <small>'+esc(e.unit)+'</small></strong></div>'
   ).join('')+'</div><p class="fle-ins-subnote">Derniers événements conservés sur la fiche. Les totaux mensuels persistent même lorsque les anciens détails ne sont plus affichés.</p>';
  }
