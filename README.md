@@ -77,3 +77,26 @@ Avant de l'utiliser pour le stock réel du magasin :
 6. N'utilise la réception d'une commande réelle qu'après cette vérification.
 
 Un FLE en mode local ne partage pas le stock entre appareils. L'application ne suit pas les ventes de caisse automatiquement : les sorties de stock doivent être saisies manuellement. Ne conserve pas un code de gestion par défaut ou trop facile à deviner.
+
+## Fiches produit et statistiques — Insights 1.0 (novembre 2026)
+
+Depuis **Stock**, clique sur le nom d'un produit pour ouvrir sa fiche dédiée. Sur téléphone, elle occupe l'écran entier et garde trois onglets :
+
+- **Aperçu** : quantité physique actuelle, commandes *marquées envoyées*, réceptions, sorties manuelles, pertes et estimation de rotation FIFO seulement si les dates sont connues.
+- **Statistiques** : volumes commandés et réceptionnés par mois, sorties/pertes, comparaison par saison. Filtre : 3 mois, 12 mois, année en cours, tout l'historique disponible.
+- **Historique** : dernière chronologie des événements datés de la référence, avec nature et quantité.
+
+### Comment alimenter les statistiques
+
+1. Saisis le stock initial dans l'inventaire (sa date d'entrée initiale reste **inconnue**).
+2. Prépare la commande comme d'habitude, puis, en **Accès gestion**, clique **« Marquer comme envoyée »** dans **Ma commande**. Cette action enregistre les quantités pour les statistiques mais **n'envoie rien au fournisseur**, ne modifie pas le stock et n'imprime pas à elle seule un bon.
+3. Lors de l'arrivée réelle des produits, **« Réceptionner la commande »** : ce geste enregistre des réceptions datées, ajoute le stock et remet les quantités commandées à zéro. La commande peut être réceptionnée même si elle n'a pas été marquée envoyée ; dans ce cas seules les quantités *réceptionnées* sont comptées.
+4. Enregistre les sorties via l'inventaire. La nouvelle action **« Perte / casse »** est comptée séparément des autres sorties. Un changement de stock par inventaire/correction n'est pas comptabilisé comme une vente ou une perte.
+
+**Aucune donnée historique imaginaire** : les métriques commencent avec les événements connus dans FLE, parfois les derniers mouvements de stock déjà enregistrés, et ne reconstituent pas de commandes ou de ventes antérieures. La « rotation » est un délai **estimé** entre une réception datée et une sortie saisie, avec hypothèse FIFO (premier entré, premier sorti), jamais un relevé des ventes caisses. Les stocks initiaux sans date n'entrent pas dans cette moyenne.
+
+Les totaux par mois sont conservés dans les données partagées de chaque produit (`analytics.months`, 120 derniers mois au maximum), même lorsque la chronologie détaillée (`analytics.events`, 200 derniers mouvements) est réduite. La liste de lots courants (`analytics.lots`) permet l'estimation FIFO. Il n'y a pas de nouvelle table Supabase : ces informations utilisent la sauvegarde JSON existante du catalogue et son contrôle de version, sous réserve de validation sur la base de production.
+
+Les fiches sont consultables par tous. Les mouvements de stock, l'enregistrement d'une commande comme envoyée et les réceptions demandent toujours l'**accès gestion** dans la version synchronisée. Les modifications ne sont pas considérées comme enregistrées sur le serveur tant que FLE n'affiche pas **En ligne**.
+
+Attention : l'historique de sauvegardes local de FreshDesk n'est pas un journal d'audit partagé. Les statistiques détaillées de produits sont enregistrées dans le JSON catalogue partagé, mais doivent être vérifiées entre deux appareils avant tout usage réel. Les modifications d'unités (colis/pièces) ne fusionnent pas les statistiques d'unités incompatibles.
