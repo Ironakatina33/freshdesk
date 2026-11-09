@@ -12,8 +12,15 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: {node-version: '24'}
-      - name: Validate JS syntax
-        run: node --check freshdesk-v5.js
+      - name: Validate application JS syntax
+        run: |
+          node --check freshdesk-v5.js
+          node --check freshdesk-mobile.js
+          node --check freshdesk-history.js
+          node --check freshdesk-stock.js
+          node --check freshdesk-analytics-core.js
+          node --check freshdesk-insights.js
+          node --check freshdesk-sw.js
       - name: Run UI and integration-contract tests
         run: node --test tests/v5-ui.test.mjs
       - name: Verify Supabase configuration and static assets
@@ -22,3 +29,8 @@ jobs:
           test -s brand-fresh.svg
           test -s freshdesk-v5.css
           test -s freshdesk-v5.js
+          test -s freshdesk-stock.js
+          test -s freshdesk-stock.css
+          test -s freshdesk-insights.js
+          test -s freshdesk-insights.css
+          test -s freshdesk-analytics-core.js
