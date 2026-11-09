@@ -280,3 +280,17 @@
 @media print{
  #fleStockPanel,#fleStockDialog,[data-stock-open],.fle-stock-inline{display:none!important}
 }
+
+/* Qty blocks now wrap the steppers and the stock readout. Keep the original
+   grid area intact on mobile rather than shifting the edit button. */
+@media screen{
+ .compact-list .list-line .fle-qty-stock,
+ .list-line .fle-qty-stock{grid-area:qty;min-width:0}
+ .product-card .card-bottom .fle-qty-stock{flex:1;min-width:0}
+ .fle-qty-stock .qty{max-width:100%}
+ .fle-qty-stock .fle-stock-inline{overflow-wrap:anywhere}
+}
+@media screen and (max-width:700px){
+ .tabs [data-stock-open]{display:none!important}
+ .compact-list .list-line .fle-qty-stock{width:100%}
+}
