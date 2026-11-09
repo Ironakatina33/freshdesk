@@ -1,8 +1,8 @@
 /* FreshDesk PWA V6 — cache only the static shell, never Supabase data. */
-const VERSION='freshdesk-ornano-suite-v1.0.1';
+const VERSION='freshdesk-ornano-suite-v1.0.2';
 const SHELL=[
  './','./index.html','./brand-fresh.svg','./manifest.webmanifest',
- './freshdesk-v5.css?v=5.0.0','./freshdesk-mobile.css?v=6.0.0','./freshdesk-mobile-v7.css?v=7.0.0','./freshdesk-mobile-v8.css?v=8.0.0','./freshdesk-mobile-v9.css?v=9.0.0','./ornano-suite-v1.css?v=1.0.1','./freshdesk-history.js?v=1.1.0',
+ './freshdesk-v5.css?v=5.0.0','./freshdesk-mobile.css?v=6.0.0','./freshdesk-mobile-v7.css?v=7.0.0','./freshdesk-mobile-v8.css?v=8.0.0','./freshdesk-mobile-v9.css?v=9.0.0','./ornano-suite-v1.css?v=1.0.2','./freshdesk-history.js?v=1.1.0',
  './freshdesk-v5.js?v=5.0.0','./freshdesk-mobile.js?v=6.0.0',
  './config.js'
 ];
