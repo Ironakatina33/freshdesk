@@ -9,12 +9,18 @@
   // These buttons are not data-view controls; the original application
   // continues to own all state changes, including print and permissions.
   $('fleMobileSearch')?.addEventListener('click',()=>{
-   const input=$('search');
+   const input=document.body.classList.contains('fle-stock-mode')?$('fleStockSearch'):$('search');
    if(!input)return;
    input.scrollIntoView?.({block:'center',behavior:'auto'});
    input.focus({preventScroll:true});
   });
-  $('fleMobilePrint')?.addEventListener('click',()=>$('topPrint')?.click());
+  $('fleMobilePrint')?.addEventListener('click',()=>{
+   if(document.body.classList.contains('fle-stock-mode')){
+    const order=document.querySelector('.fle-mobile-nav [data-view="order"]');
+    order?.click();
+    requestAnimationFrame(()=>$('topPrint')?.click());
+   }else $('topPrint')?.click();
+  });
 
   // Keep tab content in view when changing between catalogue and order.
   document.querySelectorAll('.fle-mobile-nav [data-view]').forEach(button=>{
