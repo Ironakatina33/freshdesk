@@ -337,6 +337,7 @@ $('reset').onclick=()=>{if(!canEdit()||!confirm('Remettre toutes les quantités 
     p.stock=previous.stock;p.stockMin=previous.stockMin;
     p.stockUpdatedAt=previous.stockUpdatedAt;p.stockEvents=previous.stockEvents;p.analytics=previous.analytics;
    }
+   if(previous&&original&&!Object.prototype.hasOwnProperty.call(original,'analytics'))p.analytics=previous.analytics;
    return p;
   });
   changed();notice('Catalogue importé (stocks existants conservés si la sauvegarde est ancienne)');
@@ -351,6 +352,21 @@ function stockLog(p,kind,before,after,note){
  const at=new Date().toISOString();p.stockUpdatedAt=at;
  p.stockEvents=stockEvents([...(p.stockEvents||[]),{at,kind,delta:after-(before??0),before,after,note:String(note||'').slice(0,140)}]);
 }
+// "Marquer envoyée" records a snapshot for historical order statistics.
+ // It does not send to a supplier and never changes physical stock.
+window.addEventListener('fle:order-sent',()=>{
+ if(!canEdit()||saving||conflict){stockMessage(false,'Accès gestion et synchronisation disponibles requis.');return}
+ const all=products.filter(p=>p.status==='active'&&p.qty>0);
+ if(!all.length){stockMessage(false,'Aucune quantité à commander.');return}
+ const changedQty=all.filter(p=>p.analytics?.sentQty>0&&p.analytics.sentQty!==p.qty);
+ if(changedQty.length){stockMessage(false,'Commande déjà marquée envoyée avec des quantités différentes. Réceptionne-la avant de l’enregistrer à nouveau.');return}
+ const fresh=all.filter(p=>!(p.analytics?.sentQty>0));
+ if(!fresh.length){stockMessage(false,'Cette commande a déjà été marquée envoyée.');return}
+ if(!confirm('Marquer la commande comme envoyée ?\n\n'+fresh.length+' référence(s) seront enregistrées dans les statistiques. Ceci ne transmet pas le bon au fournisseur et ne modifie pas le stock.'))return;
+ for(const p of fresh)window.FreshDeskAnalytics.addEvent(p,{type:'ordered',qty:p.qty,note:'Commande marquée envoyée'});
+ changed();stockMessage(true,'Commande marquée envoyée : '+fresh.length+' références. Sauvegarde en cours.');
+});
+
 window.addEventListener('fle:stock-commit',e=>{
  const d=e.detail||{};
  if(!canEdit()){window.dispatchEvent(new CustomEvent('fle:stock-feedback',{detail:{ok:false,message:'Accès gestion nécessaire'}}));return}
@@ -360,21 +376,24 @@ window.addEventListener('fle:stock-commit',e=>{
   if(!ordered.length){stockMessage(false,'Aucune quantité à réceptionner.');return}
   if(ordered.some(p=>p.stock===null)){stockMessage(false,'Renseigne d’abord le stock des produits de cette commande.');return}
   if(ordered.some(p=>!validStockNumber(p.qty)||!validStockNumber(p.stock+p.qty))){stockMessage(false,'Quantité de commande trop élevée.');return}
-  for(const p of ordered){const before=p.stock,amount=p.qty;p.stock+=amount;p.qty=0;stockLog(p,'Réception +'+amount,before,p.stock,'Commande reçue · '+amount+' '+p.unit)}
+  for(const p of ordered){const before=p.stock,amount=p.qty;window.FreshDeskAnalytics.addEvent(p,{type:'received',qty:amount,before,after:before+amount,note:'Réception confirmée'});p.stock+=amount;p.qty=0;stockLog(p,'Réception +'+amount,before,p.stock,'Commande reçue · '+amount+' '+p.unit)}
   changed();stockMessage(true,ordered.length+' produit'+(ordered.length>1?'s':'')+' réceptionné'+(ordered.length>1?'s':'')+'. Sauvegarde en cours.');return;
  }
  const p=products.find(p=>p.id===d.id);if(!p){stockMessage(false,'Produit introuvable. Actualise le catalogue.');return}
  const qty=Number(d.value),min=d.minimum===undefined?p.stockMin:Number(d.minimum),before=p.stock;let after=before;
  if(!validStockNumber(min)||!validStockNumber(qty)){stockMessage(false,'Utilise des quantités entières positives.');return}
  if(d.type==='set')after=qty;
- else if(d.type==='add'||d.type==='remove'){
+ else if(d.type==='add'||d.type==='remove'||d.type==='waste'){
   if(before===null){stockMessage(false,'Fais d’abord un inventaire du stock initial.');return}
   if(qty<=0){stockMessage(false,'Indique une quantité supérieure à zéro.');return}
   after=before+(d.type==='add'?qty:-qty);
   if(!validStockNumber(after)){stockMessage(false,'Stock insuffisant ou quantité trop élevée.');return}
  }else{stockMessage(false,'Opération inconnue.');return}
  if(after===before&&min===p.stockMin){stockMessage(false,'Aucun changement à enregistrer.');return}
- if(after!==before)stockLog(p,d.type==='set'?'Inventaire':d.type==='add'?'Entrée +'+qty:'Sortie -'+qty,before,after,d.note);
+ if(after!==before){
+  window.FreshDeskAnalytics.addEvent(p,{type:d.type==='set'?(before===null?'inventory':'adjust'):d.type==='add'?'entry':d.type==='waste'?'waste':'exit',qty:d.type==='set'?Math.abs(after-(before??0)):qty,before,after,note:d.note});
+  stockLog(p,d.type==='set'?'Inventaire':d.type==='add'?'Entrée +'+qty:d.type==='waste'?'Perte -'+qty:'Sortie -'+qty,before,after,d.note);
+ }
  p.stock=after;p.stockMin=min;changed();stockMessage(true,'Stock modifié : '+p.name+' · '+after+' '+p.unit+'. Synchronisation en cours.');
 });
 
