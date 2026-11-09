@@ -293,3 +293,25 @@
  .fle-ins-bar,.fle-stock-product-link span{transition:none!important}
 }
 @media print{.fle-insights-dialog,.fle-stock-mark-sent{display:none!important}}
+
+/* A sent order is reversible until receipt; cancellation changes statistics
+   but never changes on-hand stock. */
+@media screen{
+ .fle-stock-cancel-sent{
+  min-height:44px;background:transparent!important;
+  color:#8c6935!important;border:1px solid #dfd4b9!important;
+  border-radius:10px!important;font-size:11px!important;
+  font-weight:760!important;white-space:normal;
+ }
+ .fle-stock-cancel-sent:not(:disabled):hover{background:#fff7e8!important}
+ .fle-stock-cancel-sent:disabled{opacity:.5}
+ html[data-fle-theme=dark] .fle-stock-cancel-sent{
+  color:#f1d3a3!important;border-color:#786748!important;
+ }
+}
+@media screen and (max-width:700px){
+ .workspace-head .toolbar-actions .fle-stock-cancel-sent{
+  grid-column:1/-1;min-height:43px;
+ }
+}
+@media print{#fleStockCancelSent{display:none!important}}
