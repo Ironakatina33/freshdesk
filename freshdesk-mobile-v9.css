@@ -1,0 +1,44 @@
+/* FreshDesk mobile v9 — restore normal page scrolling when touching the
+   horizontal products table. The v8 pan-x restriction blocked vertical swipes. */
+@media screen and (max-width:700px){
+ html,body{touch-action:auto!important;overscroll-behavior-y:auto}
+ .content,.workspace,#tableView,.table-scroll{
+   overscroll-behavior-y:auto!important;
+ }
+ #tableView.table-scroll{
+   touch-action:auto!important; /* both horizontal and vertical touch gestures */
+   overscroll-behavior-x:contain;
+   overflow-x:auto!important;
+   -webkit-overflow-scrolling:touch;
+ }
+ #tableView .product-table,
+ #tableView .product-table thead,
+ #tableView .product-table tbody,
+ #tableView .product-table tr,
+ #tableView .product-table th,
+ #tableView .product-table td{
+   touch-action:auto!important;
+ }
+ #tableView .qty button,
+ #tableView .qty input,
+ #tableView .edit{
+   touch-action:manipulation;
+ }
+ /* Avoid accidental taps and clipped labels while holding a phone. */
+ .fle-table-hint{line-height:1.4;padding-inline:3px}
+ .fle-mobile-nav button{touch-action:manipulation}
+}
+@media screen and (min-width:701px){
+ #fleHistorySide{font-weight:780}
+ #fleHistorySide:hover,#fleHistorySide:focus-visible{
+   background:#204e43;color:#fff
+ }
+ .workspace-head .toolbar-actions .fle-history-button{
+   border:1px solid #bcdcc9;background:#eaf6ee;color:#1f6d4a;
+   min-height:43px;white-space:nowrap;font-weight:780;
+ }
+ .workspace-head .toolbar-actions .fle-history-button:hover{
+   background:#d9efe2;color:#145639;
+ }
+}
+@media print{#fleHistorySide{display:none!important}}
