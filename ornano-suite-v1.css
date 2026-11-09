@@ -347,3 +347,11 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{
  html[data-fle-theme=dark] .fle-mobile-nav .fle-mobile-hub{color:#b8d7c4!important}
  html[data-fle-theme=dark] .fle-mobile-nav .fle-mobile-hub:active{background:#315d42!important}
 }
+
+/* Unavailable manager actions are hidden for staff, instead of presenting
+   greyed-out controls that could be mistaken for a broken application. */
+@media screen{
+ .heading #add:disabled,
+ .workspace-head #reset:disabled,
+ .side #importBtn:disabled{display:none!important}
+}
