@@ -12,6 +12,9 @@
   stock:p.stock===null||p.stock===undefined||p.stock===''?null:Math.max(0,Math.floor(Number(p.stock)||0)),
   stockMin:Math.max(0,Math.floor(Number(p.stockMin)||0)),
   stockUpdatedAt:typeof p.stockUpdatedAt==='string'?p.stockUpdatedAt:null,
+  // Compact evidence of stats changes; full ledger is stored with the shared catalogue.
+  analyticsSentQty:Math.max(0,Math.floor(Number(p.analytics?.sentQty)||0)),
+  analyticsLastEvent:String(p.analytics?.events?.at(-1)?.id||'').slice(0,90),
   stockEvents:Array.isArray(p.stockEvents)?p.stockEvents.slice(-10).map(e=>({
     at:String(e.at||''),kind:String(e.kind||''),delta:Number(e.delta)||0,
     before:e.before===null?null:Number(e.before)||0,after:e.after===null?null:Number(e.after)||0,
@@ -56,6 +59,10 @@
    if(before.status!==after.status)parts.push('État : '+before.status+' → '+after.status);
    if((before.seasons||[]).join('|')!==(after.seasons||[]).join('|'))parts.push('Saisons modifiées');
    if(before.note!==after.note)parts.push('Note modifiée');
+   if((before.analyticsSentQty||0)!==(after.analyticsSentQty||0))
+    parts.push('Commande envoyée en attente : '+(before.analyticsSentQty||0)+' → '+(after.analyticsSentQty||0));
+   if((before.analyticsLastEvent||'')!==(after.analyticsLastEvent||''))
+    parts.push('Suivi de produit actualisé');
    if(parts.length)changes.push({label:after.name,description:parts.join(' · ')});
   }
   return changes;
