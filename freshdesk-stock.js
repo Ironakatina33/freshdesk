@@ -36,11 +36,17 @@
   $('fleStockUnknown').textContent=String(unknown);
   $('fleStockOrders').textContent=String(ordered.length);
   $('fleStockNotice').textContent=state.server
-   ? 'Stock du magasin · données partagées. La commande ne change pas le stock avant réception.'
+   ? 'Stock synchronisé via FLE (vérifie le statut de connexion). La commande ne change pas le stock avant réception.'
    : 'Mode local : les stocks de ce navigateur ne sont pas partagés entre les appareils.';
   const receive=$('fleStockReceive');
   receive.disabled=!ordered.length || state.saving || state.conflict || (state.server&&!state.admin);
   receive.title=!ordered.length?'Aucune quantité commandée':state.server&&!state.admin?'Active la gestion pour réceptionner':'';
+  const receiveOrder=$('fleStockReceiveOrder');
+  if(receiveOrder){
+   const isOrder=!!document.querySelector('.tabs [data-view="order"].active')&&!open;
+   receiveOrder.hidden=!isOrder||(state.server&&!state.admin);
+   receiveOrder.disabled=!ordered.length||state.saving||state.conflict;
+  }
   $('fleStockManageHint').hidden=!state.server||state.admin;
   const q=$('fleStockSearch').value.trim().toLocaleLowerCase('fr');
   const items=products.filter(p=>(!q||(p.name+' '+p.category+' '+p.note).toLocaleLowerCase('fr').includes(q))) 
@@ -113,7 +119,9 @@
   const tabs=document.querySelector('.tabs [data-view="order"]');
   const mobile=document.querySelector('.fle-mobile-nav [data-view="order"]');
   const workspace=$('fle-catalogue');
+  const toolbar=document.querySelector('.workspace-head .toolbar-actions');
   if(!sidebar||!tabs||!workspace||!mobile)return;
+  if(toolbar)toolbar.insertAdjacentHTML('beforeend','<button id="fleStockReceiveOrder" type="button" class="btn fle-stock-receive-order" hidden>✓ Réceptionner la commande</button>');
   sidebar.insertAdjacentHTML('afterend','<button type="button" data-stock-open id="fleStockSidebar">▤ &nbsp; Stock du magasin</button>');
   tabs.insertAdjacentHTML('afterend','<button type="button" data-stock-open id="fleStockTab">▤ Stock</button>');
   mobile.insertAdjacentHTML('afterend','<button type="button" data-stock-open id="fleStockMobile" aria-label="Consulter les stocks"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7 12 3l9 4v10l-9 4-9-4V7Z"/><path d="m3 7 9 4 9-4M12 11v10"/></svg><span>Stock</span></button>');
@@ -153,6 +161,7 @@
   $('fleStockType').addEventListener('change',updateType);
   $('fleStockForm').addEventListener('submit',submit);
   $('fleStockReceive').addEventListener('click',receive);
+  $('fleStockReceiveOrder')?.addEventListener('click',receive);
   dialog.querySelector('.fle-stock-close').addEventListener('click',()=>dialog.close());
   dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close()});
   window.addEventListener('fle:stock-feedback',e=>{
