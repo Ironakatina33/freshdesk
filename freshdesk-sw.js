@@ -1,8 +1,8 @@
 /* FreshDesk PWA V6 — cache only the static shell, never Supabase data. */
-const VERSION='freshdesk-restored-v9.2.0';
+const VERSION='freshdesk-photo-4.0.0';
 const SHELL=[
  './','./index.html','./brand-fresh.svg','./manifest.webmanifest',
- './freshdesk-v5.css?v=5.0.0','./freshdesk-mobile.css?v=6.0.0','./freshdesk-mobile-v7.css?v=7.0.0','./freshdesk-mobile-v8.css?v=8.0.0','./freshdesk-mobile-v9.css?v=9.0.0','./freshdesk-history.js?v=1.1.0',
+ './freshdesk-v5.css?v=5.4.0','./freshdesk-mobile.css?v=6.0.0','./freshdesk-mobile-v7.css?v=7.0.0','./freshdesk-mobile-v8.css?v=8.0.0','./freshdesk-mobile-v9.css?v=9.0.0','./freshdesk-history.js?v=1.1.0',
  './freshdesk-v5.js?v=5.0.0','./freshdesk-mobile.js?v=6.0.0',
  './config.js'
 ];
