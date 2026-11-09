@@ -8,7 +8,15 @@
  const clean=v=>Array.isArray(v)?v.filter(p=>p&&typeof p.name==='string').slice(0,3000).map(p=>({
   id:String(p.id||''),name:String(p.name).slice(0,100),category:p.category==='Légume'?'Légume':'Fruit',
   qty:Math.max(0,Math.floor(Number(p.qty)||0)),unit:String(p.unit||'Colis').slice(0,30),
-  status:p.status==='paused'?'paused':'active',seasons:Array.isArray(p.seasons)?p.seasons.slice(0,8):[],note:String(p.note||'').slice(0,500)
+  status:p.status==='paused'?'paused':'active',seasons:Array.isArray(p.seasons)?p.seasons.slice(0,8):[],note:String(p.note||'').slice(0,500),
+  stock:p.stock===null||p.stock===undefined||p.stock===''?null:Math.max(0,Math.floor(Number(p.stock)||0)),
+  stockMin:Math.max(0,Math.floor(Number(p.stockMin)||0)),
+  stockUpdatedAt:typeof p.stockUpdatedAt==='string'?p.stockUpdatedAt:null,
+  stockEvents:Array.isArray(p.stockEvents)?p.stockEvents.slice(-10).map(e=>({
+    at:String(e.at||''),kind:String(e.kind||''),delta:Number(e.delta)||0,
+    before:e.before===null?null:Number(e.before)||0,after:e.after===null?null:Number(e.after)||0,
+    note:String(e.note||'').slice(0,140)
+  })):[]
  })):null;
  const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
  let entries=[],state=null,selected=null,storageError=false,localTimer=null;
@@ -39,7 +47,9 @@
    if(!before){changes.push({label:after.name,description:'Produit ajouté'});continue}
    if(!after){changes.push({label:before.name,description:'Produit supprimé'});continue}
    const parts=[];
-   if(before.qty!==after.qty)parts.push('Quantité '+before.qty+' → '+after.qty);
+   if(before.qty!==after.qty)parts.push('Commande '+before.qty+' → '+after.qty);
+   if(before.stock!==after.stock)parts.push('Stock '+(before.stock??'non renseigné')+' → '+(after.stock??'non renseigné'));
+   if(before.stockMin!==after.stockMin)parts.push('Seuil de stock '+(before.stockMin||0)+' → '+(after.stockMin||0));
    if(before.name!==after.name)parts.push('Nom : '+before.name+' → '+after.name);
    if(before.category!==after.category)parts.push('Catégorie modifiée');
    if(before.unit!==after.unit)parts.push('Unité : '+before.unit+' → '+after.unit);
