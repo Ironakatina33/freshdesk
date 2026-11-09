@@ -8,7 +8,7 @@
  let open = false, currentId = null, filter = 'all';
  const byId = id => state.products.find(p=>p.id===id);
  const known = p => p.stock !== null && p.stock !== undefined && Number.isFinite(Number(p.stock));
- const low = p => known(p) && p.stockMin>0 && Number(p.stock)<=Number(p.stockMin);
+ const low = p => known(p) && (Number(p.stock)===0 || (p.stockMin>0 && Number(p.stock)<=Number(p.stockMin)));
  const date = value => {try{return new Date(value).toLocaleString('fr-FR',{dateStyle:'short',timeStyle:'short'})}catch{return String(value||'')}};
  function changeView(next){
   open=next;
@@ -57,7 +57,7 @@
    const isKnown=known(p),isLow=low(p);
    const remaining=isKnown?esc(p.stock)+' '+esc(p.unit):'Non renseigné';
    const after=isKnown&&p.qty>0?'Après réception : '+esc(Number(p.stock)+Number(p.qty))+' '+esc(p.unit):'';
-   const badge=isLow?'<span class="fle-stock-alert">Stock bas</span>':!isKnown?'<span class="fle-stock-unset">À inventorier</span>':'';
+   const badge=isLow?'<span class="fle-stock-alert">'+(Number(p.stock)===0?'Rupture de stock':'Stock bas')+'</span>':!isKnown?'<span class="fle-stock-unset">À inventorier</span>':'';
    return '<article class="fle-stock-item'+(isLow?' is-low':'')+'">'+
     '<div class="fle-stock-item-icon" aria-hidden="true">'+(p.category==='Fruit'?'🍎':'🥬')+'</div>'+
     '<div class="fle-stock-item-info"><strong>'+esc(p.name)+'</strong>'+
