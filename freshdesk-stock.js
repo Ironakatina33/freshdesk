@@ -55,6 +55,12 @@
    const already=ordered.filter(p=>p.analytics?.sentQty>0);
    sentOrder.title=already.length===ordered.length&&ordered.length>0?'Commande déjà marquée envoyée':'Enregistre les quantités envoyées, sans contacter le fournisseur';
   }
+  const cancel=$('fleStockCancelSent');
+  if(cancel){
+   const inOrder=!!document.querySelector('.tabs [data-view="order"].active')&&!open;
+   cancel.hidden=!inOrder||(state.server&&!state.admin)||!products.some(p=>p.analytics?.sentQty>0);
+   cancel.disabled=state.saving||state.conflict;
+  }
   $('fleStockManageHint').hidden=!state.server||state.admin;
   const q=$('fleStockSearch').value.trim().toLocaleLowerCase('fr');
   const items=products.filter(p=>(!q||(p.name+' '+p.category+' '+p.note).toLocaleLowerCase('fr').includes(q))) 
@@ -131,6 +137,7 @@
   if(!sidebar||!tabs||!workspace||!mobile)return;
   if(toolbar)toolbar.insertAdjacentHTML('beforeend',
    '<button id="fleStockMarkSent" type="button" class="btn fle-stock-mark-sent" hidden>✓ Marquer comme envoyée</button>'+
+   '<button id="fleStockCancelSent" type="button" class="btn fle-stock-cancel-sent" hidden>Annuler l’envoi enregistré</button>'+ 
    '<button id="fleStockReceiveOrder" type="button" class="btn fle-stock-receive-order" hidden>✓ Réceptionner la commande</button>');
   sidebar.insertAdjacentHTML('afterend','<button type="button" data-stock-open id="fleStockSidebar">▤ &nbsp; Stock du magasin</button>');
   tabs.insertAdjacentHTML('afterend','<button type="button" data-stock-open id="fleStockTab">▤ Stock</button>');
@@ -177,6 +184,7 @@
   $('fleStockReceive').addEventListener('click',receive);
   $('fleStockReceiveOrder')?.addEventListener('click',receive);
   $('fleStockMarkSent')?.addEventListener('click',()=>window.dispatchEvent(new Event('fle:order-sent')));
+  $('fleStockCancelSent')?.addEventListener('click',()=>window.dispatchEvent(new Event('fle:order-cancel')));
   window.addEventListener('fle:stock-edit',e=>{if(e.detail?.id)edit(e.detail.id)});
   dialog.querySelector('.fle-stock-close').addEventListener('click',()=>dialog.close());
   dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close()});
