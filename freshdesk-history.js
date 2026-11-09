@@ -58,6 +58,14 @@
   if($('fleHistoryDialog'))return;
   const toolbar=document.querySelector('.workspace-head .toolbar-actions');
   if(!toolbar)return;
+  const sidebar=$('fleHistorySide');
+  if(sidebar&&!sidebar.dataset.fleHistoryBound){
+   sidebar.dataset.fleHistoryBound='1';
+   sidebar.addEventListener('click',()=>{
+    if(!$('fleHistoryOpen'))ensureUi();
+    $('fleHistoryOpen')?.click();
+   });
+  }
   const button=document.createElement('button');
   button.id='fleHistoryOpen';button.type='button';button.className='btn fle-history-button';
   button.addEventListener('click',()=>{selected=entries[0]?.id||null;renderHistory();$('fleHistoryDialog').showModal()});
