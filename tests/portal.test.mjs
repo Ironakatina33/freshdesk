@@ -19,7 +19,7 @@ test('the weekly editor is deliberately a draft, not a live planning client',()=
  assert.match(html,/city-equipe-draft\/v1/);
  assert.match(html,/id="exportDraft"/);
  assert.match(html,/id="draftInput"/);
- assert.match(html,/case non modifi/i);
+ assert.match(html,/Les cases « — » ne seront pas modifiées/);
  assert.match(html,/Aucun horaire n'est publié/);
  assert.doesNotMatch(scripts[0][1],/localStorage|sessionStorage|fetch\(|XMLHttpRequest|WebSocket/);
 });
