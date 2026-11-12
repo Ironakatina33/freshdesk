@@ -22,7 +22,7 @@ jobs:
           node --check freshdesk-insights.js
           node --check freshdesk-sw.js
       - name: Run UI and integration-contract tests
-        run: node --test tests/v5-ui.test.mjs
+        run: node --test tests/v5-ui.test.mjs tests/portal.test.mjs
       - name: Verify Supabase configuration and static assets
         run: |
           test -s config.js
@@ -34,3 +34,6 @@ jobs:
           test -s freshdesk-insights.js
           test -s freshdesk-insights.css
           test -s freshdesk-analytics-core.js
+          test -s hub/index.html
+          test -s hub/preparation.html
+          test -s hub/logo-city.svg
