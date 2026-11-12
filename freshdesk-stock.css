@@ -314,3 +314,84 @@
  }
 }
 @media print{#fleStockReceiveOrder{display:none!important}}
+
+/* Shelf fill V1: a visual estimate of shelf appearance, NOT reserve inventory.
+   Same language as the existing Carrefour-inspired Stock interface. */
+@media screen{
+ .fle-stock-item-info .fle-shelf-status{
+  display:inline-flex;align-items:center;gap:7px;max-width:100%;
+  margin-top:8px;padding:6px 9px;border-radius:8px;
+  background:#eef3f1;color:#486b5b;font-size:11px;line-height:1.35;
+  font-weight:790;white-space:normal;
+ }
+ .fle-shelf-status .fle-shelf-dot{width:8px;height:8px;flex:none;border-radius:50%;background:#a2ada8}
+ .fle-stock-item-info .fle-shelf-status strong{color:inherit;font-size:11px;font-weight:790}
+ .fle-stock-item-info .fle-shelf-status.is-empty{background:#fff0e7;color:#a54c2e}
+ .fle-shelf-status.is-empty .fle-shelf-dot{background:#de6440}
+ .fle-stock-item-info .fle-shelf-status.is-low{background:#fff5e7;color:#946321}
+ .fle-shelf-status.is-low .fle-shelf-dot{background:#df9b3e}
+ .fle-stock-item-info .fle-shelf-status.is-full{background:#e6f6eb;color:#166743}
+ .fle-shelf-status.is-full .fle-shelf-dot{background:#3ca876}
+ .fle-shelf-quick-label{display:flex;align-items:center;flex-wrap:wrap;gap:7px;
+  color:#6c8175;font-size:11px;font-weight:780;margin-top:8px;max-width:100%;
+ }
+ .fle-shelf-quick-label select{
+  min-height:44px;max-width:250px;width:auto;min-width:170px;
+  padding:8px 28px 8px 10px;border:1px solid #cce2d3;border-radius:9px;
+  background:#fff;color:#1e6243;font-size:13px;font-weight:760;
+  font-family:inherit;cursor:pointer;
+ }
+ .fle-shelf-quick-label select:focus-visible{
+  outline:3px solid #79c79b!important;outline-offset:2px;
+ }
+ .fle-shelf-quick-label select:disabled{opacity:.55;cursor:not-allowed}
+ .fle-stock-item-info .fle-shelf-readonly{
+  display:block;margin-top:7px;font-size:11px;color:#648274;font-weight:760;
+ }
+ .fle-stock-reserve-empty{
+  display:inline-block;margin-top:5px;padding:5px 7px;border-radius:7px;
+  background:#edf7ed;color:#32774d;font-size:10px;font-weight:800;
+ }
+ .fle-shelf-inline{
+  display:block;color:#276c52;font-size:10px;line-height:1.4;font-weight:760;
+  margin-top:1px;max-width:205px;
+ }
+ .fle-shelf-inline.is-empty{color:#aa5132}
+ .fle-shelf-inline.is-low{color:#986822}
+ .fle-shelf-inline.is-unknown{color:#85918b}
+ .fle-shelf-inline.is-full{color:#278054}
+ .filters #shelfFilter{min-height:44px;min-width:176px;max-width:250px;flex:0 1 210px;
+  text-overflow:ellipsis
+ }
+ .fle-stock-filters{flex-wrap:wrap}
+ .fle-stock-filters #fleStockFilter{flex:0 1 212px;width:212px}
+ .fle-stock-filters #fleStockShelfFilter{flex:0 1 215px;width:215px}
+ html[data-fle-theme=dark] .fle-stock-item-info .fle-shelf-status{background:#2a4540;color:#c9dbd0}
+ html[data-fle-theme=dark] .fle-stock-item-info .fle-shelf-status.is-empty{background:#49362e;color:#f5baa3}
+ html[data-fle-theme=dark] .fle-stock-item-info .fle-shelf-status.is-low{background:#493e2c;color:#efd1a4}
+ html[data-fle-theme=dark] .fle-stock-item-info .fle-shelf-status.is-full{background:#244c39;color:#b8edcf}
+ html[data-fle-theme=dark] .fle-shelf-quick-label{color:#bad5c4}
+ html[data-fle-theme=dark] .fle-shelf-quick-label select{background:#29463b;color:#e8f6ed;border-color:#466b56}
+ html[data-fle-theme=dark] .fle-shelf-inline{color:#b2e3c4}
+ html[data-fle-theme=dark] .fle-shelf-inline.is-empty{color:#eeb099}
+ html[data-fle-theme=dark] .fle-shelf-inline.is-low{color:#eccc91}
+ html[data-fle-theme=dark] .fle-shelf-inline.is-unknown{color:#acbec1}
+ html[data-fle-theme=dark] .fle-stock-reserve-empty{background:#285038;color:#b6ebc8}
+}
+@media screen and (max-width:900px){
+ .filters #shelfFilter{max-width:none;flex:1 1 170px}
+}
+@media screen and (max-width:700px){
+ .fle-stock-filters{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}
+ .fle-stock-filters .fle-stock-search{grid-column:1/-1;max-width:none!important}
+ .fle-stock-filters #fleStockFilter,
+ .fle-stock-filters #fleStockShelfFilter{width:100%;max-width:none;min-width:0;flex:auto}
+ .fle-stock-filters #fleStockShelfFilter{grid-column:auto}
+ .fle-shelf-quick-label{align-items:stretch;flex-direction:column;gap:4px}
+ .fle-shelf-quick-label select{min-width:0;width:100%;max-width:100%;font-size:16px}
+ .fle-stock-item-info .fle-shelf-status{margin-top:6px;padding:5px 7px}
+ .fle-stock-item-info .fle-shelf-status strong{font-size:10px}
+ .fle-shelf-inline{max-width:none;font-size:11px}
+ .filters #shelfFilter{min-width:0;width:100%;max-width:none;flex:auto;font-size:16px!important}
+}
+@media print{.fle-shelf-inline,.fle-shelf-status,.fle-shelf-quick-label,.fle-shelf-readonly{display:none!important}}
