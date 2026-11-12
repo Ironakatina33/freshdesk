@@ -447,7 +447,7 @@ window.addEventListener('fle:restore-request',event=>{const snapshot=event.detai
      stockLog(p,'Restauration historique',old.stock,desired,'Retour à une ancienne version');
     }
    }
-   if(original&&!Object.prototype.hasOwnProperty.call(original,'shelfFill')){p.shelfFill=old.shelfFill;p.shelfUpdatedAt=old.shelfUpdatedAt}
+   if(original&&(!Object.prototype.hasOwnProperty.call(original,'shelfFill')||(original.shelfFill===null&&!original.shelfUpdatedAt))){p.shelfFill=old.shelfFill;p.shelfUpdatedAt=old.shelfUpdatedAt}
    return p;
   });
   changed();
