@@ -8,7 +8,14 @@
  let open = false, currentId = null, filter = 'all';
  const byId = id => state.products.find(p=>p.id===id);
  const known = p => p.stock !== null && p.stock !== undefined && Number.isFinite(Number(p.stock));
- const low = p => known(p) && (Number(p.stock)===0 || (p.stockMin>0 && Number(p.stock)<=Number(p.stockMin)));
+ const shelfFill=p=>[0,25,75,100].includes(p.shelfFill)?p.shelfFill:null;
+ const shelfLabel=p=>p.shelfFill===0?'Vide · 0 %':p.shelfFill===25?'Moins de 50 %':p.shelfFill===75?'50 à 99 %':p.shelfFill===100?'Plein · 100 %':'Non renseigné';
+ const shelfHealthy=p=>[75,100].includes(shelfFill(p));
+ const shelfMatch=(p,key)=>key==='all'||key==='unset'&&shelfFill(p)===null||
+  key==='empty'&&shelfFill(p)===0||key==='low'&&shelfFill(p)===25||
+  key==='mid'&&shelfFill(p)===75||key==='full'&&shelfFill(p)===100;
+ // Réserve basse ne signifie pas rupture si le rayon est encore bien rempli.
+ const low = p => known(p) && (Number(p.stock)===0 || (p.stockMin>0 && Number(p.stock)<=Number(p.stockMin)))&&!shelfHealthy(p);
  const date = value => {try{return new Date(value).toLocaleString('fr-FR',{dateStyle:'short',timeStyle:'short'})}catch{return String(value||'')}};
  function changeView(next){
   open=next;
@@ -62,21 +69,36 @@
    cancel.disabled=state.saving||state.conflict;
   }
   $('fleStockManageHint').hidden=!state.server||state.admin;
-  const q=$('fleStockSearch').value.trim().toLocaleLowerCase('fr');
+  const q=$('fleStockSearch').value.trim().toLocaleLowerCase('fr'),shelf=$('fleStockShelfFilter').value;
   const items=products.filter(p=>(!q||(p.name+' '+p.category+' '+p.note).toLocaleLowerCase('fr').includes(q))) 
     .filter(p=>filter==='low'?low(p):filter==='unknown'?!known(p):filter==='ordered'?p.qty>0:true)
+    .filter(p=>shelfMatch(p,shelf))
     .sort((a,b)=>a.category.localeCompare(b.category,'fr')||a.name.localeCompare(b.name,'fr'));
   $('fleStockCount').textContent=items.length+' produit'+(items.length>1?'s':'');
   $('fleStockRows').innerHTML=items.map(p=>{
    const isKnown=known(p),isLow=low(p);
    const remaining=isKnown?esc(p.stock)+' '+esc(p.unit):'Non renseigné';
    const after=isKnown&&p.qty>0?'Après réception : '+esc(Number(p.stock)+Number(p.qty))+' '+esc(p.unit):'';
-   const badge=isLow?'<span class="fle-stock-alert">'+(Number(p.stock)===0?'Rupture de stock':'Stock bas')+'</span>':!isKnown?'<span class="fle-stock-unset">À inventorier</span>':'';
+   const badge=isLow?'<span class="fle-stock-alert">'+(p.shelfFill===0&&Number(p.stock)===0?'Rayon et réserve vides':Number(p.stock)===0?'Réserve vide':'Réserve basse')+'</span>':
+    !isKnown?'<span class="fle-stock-unset">Réserve à inventorier</span>':
+    Number(p.stock)===0&&shelfHealthy(p)?'<span class="fle-stock-reserve-empty">Réserve vide · rayon rempli</span>':'';
+   const shelfClass=p.shelfFill===0?'is-empty':p.shelfFill===25?'is-low':shelfHealthy(p)?'is-full':'is-unknown';
+   const canSet=!state.server||state.admin;
+   const shelfUI=canSet
+     ?'<label class="fle-shelf-quick-label">Remplissage du rayon <select data-shelf-set="'+esc(p.id)+'" aria-label="Remplissage du rayon pour '+esc(p.name)+'" '+(state.saving||state.conflict?'disabled':'')+'>'+
+      '<option value="" '+(shelfFill(p)===null?'selected':'')+'>Non renseigné</option>'+
+      '<option value="0" '+(p.shelfFill===0?'selected':'')+'>Vide · 0 %</option>'+
+      '<option value="25" '+(p.shelfFill===25?'selected':'')+'>Moins de 50 %</option>'+
+      '<option value="75" '+(p.shelfFill===75?'selected':'')+'>50 à 99 %</option>'+
+      '<option value="100" '+(p.shelfFill===100?'selected':'')+'>Plein · 100 %</option>'+
+      '</select></label>'
+     :'<span class="fle-shelf-readonly">Remplissage du rayon : '+esc(shelfLabel(p))+'</span>';
+   const shelfReadout='<div class="fle-shelf-status '+shelfClass+'"><span class="fle-shelf-dot" aria-hidden="true"></span><strong>Rayon : '+esc(shelfLabel(p))+'</strong></div>';
    return '<article class="fle-stock-item'+(isLow?' is-low':'')+'">'+
     '<div class="fle-stock-item-icon" aria-hidden="true">'+(p.category==='Fruit'?'🍎':'🥬')+'</div>'+
     '<div class="fle-stock-item-info"><button type="button" class="fle-stock-product-link" data-insights-open="'+esc(p.id)+'" aria-label="Voir la fiche et les statistiques de '+esc(p.name)+'">'+esc(p.name)+' <span aria-hidden="true">↗</span></button>'+
     '<small>'+esc(p.category)+' · '+esc(p.unit)+(p.stockMin>0?' · Alerte à '+esc(p.stockMin):'')+'</small>'+
-    (Number(p.qty)>0?'<span class="fle-stock-ordered">Commandé : '+esc(p.qty)+' '+esc(p.unit)+'</span>':'')+'</div>'+
+    (Number(p.qty)>0?'<span class="fle-stock-ordered">Commandé : '+esc(p.qty)+' '+esc(p.unit)+'</span>':'')+shelfReadout+shelfUI+'</div>'+
     '<div class="fle-stock-amount"><strong>'+remaining+'</strong>'+badge+(after?'<small>'+after+'</small>':'')+'</div>'+
     '<button type="button" class="fle-stock-adjust" data-stock-edit="'+esc(p.id)+'"'+(state.server&&!state.admin?' title="Accès gestion nécessaire"':'')+'>'+(isKnown?'Ajuster':'Inventaire')+'</button>'+
     '</article>';
@@ -149,12 +171,13 @@
    '<button id="fleStockReceive" type="button" class="fle-stock-receive">✓ Réceptionner la commande</button></div>'+
    '<div class="fle-stock-stats">'+
    '<div><small>Références inventoriées</small><strong id="fleStockTracked">0</strong></div>'+
-   '<div><small>Stock bas</small><strong id="fleStockLow">0</strong></div>'+
+   '<div><small>Réserve basse + rayon à surveiller</small><strong id="fleStockLow">0</strong></div>'+
    '<div><small>À inventorier</small><strong id="fleStockUnknown">0</strong></div>'+
    '<div><small>À réceptionner</small><strong id="fleStockOrders">0</strong></div></div>'+
    '<p id="fleStockManageHint" class="fle-stock-manage-hint" hidden>Pour modifier les stocks ou réceptionner une commande, active <strong>Accès gestion</strong>.</p>'+
    '<div class="fle-stock-filters"><label class="fle-stock-search"><span class="sr-only">Rechercher un produit</span><input type="search" id="fleStockSearch" placeholder="Rechercher un produit…" autocomplete="off"></label>'+
-   '<select id="fleStockFilter" aria-label="Filtrer les stocks"><option value="all">Tous les produits</option><option value="low">Stocks bas</option><option value="unknown">À inventorier</option><option value="ordered">En commande</option></select>'+
+   '<select id="fleStockFilter" aria-label="Filtrer les stocks"><option value="all">Tous les produits</option><option value="low">Réserve basse / rayon à surveiller</option><option value="unknown">À inventorier</option><option value="ordered">En commande</option></select>'+
+   '<select id="fleStockShelfFilter" aria-label="Filtrer le remplissage du rayon"><option value="all">Tous remplissages</option><option value="empty">Rayon vide · 0 %</option><option value="low">Moins de 50 %</option><option value="mid">50 à 99 %</option><option value="full">Plein · 100 %</option><option value="unset">Non renseigné</option></select>'+
    '<span id="fleStockCount" class="fle-stock-count">0 produit</span></div>'+
    '<div id="fleStockRows" class="fle-stock-rows"></div>';
   workspace.parentNode.insertBefore(panel,document.querySelector('.tabs'));
@@ -174,10 +197,17 @@
   document.addEventListener('click',e=>{if(e.target.closest('[data-view]'))changeView(false)},true);
   $('fleStockSearch').addEventListener('input',render);
   $('fleStockFilter').addEventListener('change',e=>{filter=e.target.value;render()});
+  $('fleStockShelfFilter').addEventListener('change',render);
   $('fleStockRows').addEventListener('click',e=>{
    const insights=e.target.closest('[data-insights-open]');
    if(insights){window.dispatchEvent(new CustomEvent('fle:insights-open',{detail:{id:insights.dataset.insightsOpen}}));return}
    const b=e.target.closest('[data-stock-edit]');if(b)edit(b.dataset.stockEdit);
+  });
+  $('fleStockRows').addEventListener('change',e=>{
+   const select=e.target.closest('select[data-shelf-set]');
+   if(!select)return;
+   if(!needAdmin()){render();return}
+   window.dispatchEvent(new CustomEvent('fle:shelf-set',{detail:{id:select.dataset.shelfSet,value:select.value}}));
   });
   $('fleStockType').addEventListener('change',updateType);
   $('fleStockForm').addEventListener('submit',submit);
@@ -189,6 +219,7 @@
   dialog.querySelector('.fle-stock-close').addEventListener('click',()=>dialog.close());
   dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close()});
   window.addEventListener('fle:stock-feedback',e=>{
+   window.dispatchEvent(new Event('fle:request-state'));
    if(e.detail?.ok&&dialog.open)dialog.close();
    else if(dialog.open&&e.detail?.message)$('fleStockError').textContent=e.detail.message;
   });
