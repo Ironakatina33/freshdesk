@@ -323,3 +323,22 @@
   background:#4b4036;color:#f2cda2
  }
 }
+
+/* Rayon and reserve are separate observations. Avoid an alarming red rupture
+   badge for an empty reserve while display shelves are still well stocked. */
+@media screen{
+ .fle-ins-kpi.is-shelf{
+  background:linear-gradient(145deg,#f2faf3,#fff);
+  border-color:#d0e7d5;
+ }
+ .fle-ins-kpi.is-shelf strong{
+  font-size:clamp(17px,2.3vw,24px)!important;
+  letter-spacing:-.035em;line-height:1.2;
+ }
+ .fle-insights-header #fleInsightsStatus{display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+ html[data-fle-theme=dark] .fle-ins-kpi.is-shelf{background:#244738;border-color:#4e755a}
+}
+@media screen and (max-width:700px){
+ .fle-ins-kpi.is-shelf strong{font-size:17px!important}
+ .fle-insights-header #fleInsightsStatus{gap:5px}
+}
