@@ -12,6 +12,8 @@
   stock:p.stock===null||p.stock===undefined||p.stock===''?null:Math.max(0,Math.floor(Number(p.stock)||0)),
   stockMin:Math.max(0,Math.floor(Number(p.stockMin)||0)),
   stockUpdatedAt:typeof p.stockUpdatedAt==='string'?p.stockUpdatedAt:null,
+  shelfFill:[0,25,75,100].includes(p.shelfFill)?p.shelfFill:null,
+  shelfUpdatedAt:typeof p.shelfUpdatedAt==='string'?p.shelfUpdatedAt:null,
   // Compact evidence of stats changes; full ledger is stored with the shared catalogue.
   analyticsSentQty:Math.max(0,Math.floor(Number(p.analytics?.sentQty)||0)),
   analyticsLastEvent:String(p.analytics?.events?.at(-1)?.id||'').slice(0,90),
@@ -53,6 +55,10 @@
    if(before.qty!==after.qty)parts.push('Commande '+before.qty+' → '+after.qty);
    if((before.stock??null)!==(after.stock??null))parts.push('Stock '+(before.stock??'non renseigné')+' → '+(after.stock??'non renseigné'));
    if((before.stockMin||0)!==(after.stockMin||0))parts.push('Seuil de stock '+(before.stockMin||0)+' → '+(after.stockMin||0));
+   if((before.shelfFill??null)!==(after.shelfFill??null)){
+    const label=v=>v===0?'Rayon vide (0 %)':v===25?'< 50 %':v===75?'50–99 %':v===100?'Rayon plein (100 %)':'Non renseigné';
+    parts.push('Remplissage rayon : '+label(before.shelfFill)+' → '+label(after.shelfFill));
+   }
    if(before.name!==after.name)parts.push('Nom : '+before.name+' → '+after.name);
    if(before.category!==after.category)parts.push('Catégorie modifiée');
    if(before.unit!==after.unit)parts.push('Unité : '+before.unit+' → '+after.unit);
