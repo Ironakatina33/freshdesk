@@ -101,3 +101,20 @@ Les totaux par mois sont conservés dans les données partagées de chaque produ
 Les fiches sont consultables par tous. Les mouvements de stock, l'enregistrement d'une commande comme envoyée et les réceptions demandent toujours l'**accès gestion** dans la version synchronisée. Les modifications ne sont pas considérées comme enregistrées sur le serveur tant que FLE n'affiche pas **En ligne**.
 
 Attention : l'historique de sauvegardes local de FreshDesk n'est pas un journal d'audit partagé. Les statistiques détaillées de produits sont enregistrées dans le JSON catalogue partagé, mais doivent être vérifiées entre deux appareils avant tout usage réel. Les modifications d'unités (colis/pièces) ne fusionnent pas les statistiques d'unités incompatibles.
+
+## Remplissage du rayon — indépendamment du stock de réserve
+
+Un article possède deux informations **différentes** :
+
+- `stock` : le nombre de colis/unités physiquement enregistrés en réserve (saisie de l'inventaire).
+- `shelfFill` : un **état visuel approximatif** du rayon, indépendant des colis, choisi par l'équipe.
+
+Dans **Stock**, l'accès gestion permet de choisir directement : **Non renseigné**, **Rayon vide (0 %)**, **Moins de 50 %**, **50 à 99 %**, **Rayon plein (100 %)**. Ces catégories sont représentées par `null`, `0`, `25`, `75` et `100` dans le JSON produit ; `25` et `75` sont des codes de catégorie et non des pourcentages mesurés précisément. La date de dernière déclaration est conservée dans `shelfUpdatedAt`.
+
+La nouvelle observation est consultable sans accès gestion, à côté des quantités sur le catalogue et les bons, et sur la fiche statistique de chaque produit. Des **filtres de remplissage** sont proposés dans **Catalogue / Ma commande** et dans **Stock**. Ils n'entraînent **aucune modification des quantités** ; la visibilité des produits à imprimer suit les filtres actifs, comme pour les filtres existants.
+
+**Exemple** : 0 colis en réserve et un rayon rempli à 100 % sont affichés **« Réserve vide · rayon rempli »**, et non comme une rupture totale. Les alertes urgentes de stock prennent en compte le remplissage : un rayon bien garni n'est pas considéré critique simplement parce que la réserve est à zéro. Le stock de réserve continue d'être affiché honnêtement, même lorsque le rayon est rempli.
+
+L'observation du rayon ne provoque ni commande, ni sortie de stock, ni vente calculée, ni réception. Les anciennes références sans donnée de rayon sont « Non renseigné », **pas** « Rayon vide ». Les sauvegardes JSON anciennes ne doivent pas effacer une observation plus récente lors d'un import ou d'une restauration. La chronologie locale conserve les changements de statut après sauvegarde.
+
+**Attention** : le taux de remplissage est une estimation saisie manuellement. Il ne correspond pas à une comptabilisation des unités vendues en caisse et ne peut pas servir seul à prévoir précisément les ventes.
