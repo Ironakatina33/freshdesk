@@ -118,3 +118,16 @@ La nouvelle observation est consultable sans accès gestion, à côté des quant
 L'observation du rayon ne provoque ni commande, ni sortie de stock, ni vente calculée, ni réception. Les anciennes références sans donnée de rayon sont « Non renseigné », **pas** « Rayon vide ». Les sauvegardes JSON anciennes ne doivent pas effacer une observation plus récente lors d'un import ou d'une restauration. La chronologie locale conserve les changements de statut après sauvegarde.
 
 **Attention** : le taux de remplissage est une estimation saisie manuellement. Il ne correspond pas à une comptabilisation des unités vendues en caisse et ne peut pas servir seul à prévoir précisément les ventes.
+
+## Portail magasin et brouillons de planning
+
+Le dossier `hub/` est un **portail statique complémentaire** publié avec FreshDesk, sans changer le City Hub principal hébergé sur Cloudflare :
+
+- `https://fle.city-ornano.fr/hub/` : deux cartes illustrées, FreshDesk et préparation d'un planning.
+- `https://fle.city-ornano.fr/hub/preparation.html` : éditeur de **brouillon hebdomadaire**. On saisit manuellement les noms des collègues, puis seules les cases modifiées sont exportées dans un fichier JSON `city-equipe-draft/v1`. Les cases « — » ne modifient rien.
+- Les liens « Retour au City Hub » déjà présents dans FreshDesk renvoient désormais vers ce portail complémentaire.
+- L'import dans City Équipe se fait depuis la session **manager** sur le site officiel : `Gestion → Tableau de saisie → Importer un brouillon`. L'outil compare les noms aux profils, vérifie les dates, récupère les valeurs actuelles et met les modifications **en attente**. Seul le clic sur « Enregistrer » publie les horaires via l'API authentifiée et ses contrôles de concurrence.
+- **Aucun horaire et aucun nom de collègue ne sont pré-remplis, hébergés sur GitHub ou stockés dans le navigateur**. Le brouillon est conservé uniquement dans la mémoire de l'onglet ouvert. Le JSON téléchargé contient des données d'employés : son transfert doit respecter les règles de sécurité du magasin, et il faut le supprimer des PC partagés après usage.
+- Ce portail n'est **pas un proxy** pour l'API Cloudflare bloquée. Il ne permet pas l'édition directe du planning publié sans réseau autorisé. Faire valider son emploi par l'informatique Carrefour et demander l'autorisation de `city-ornano.fr` et `planning.city-ornano.fr` pour le fonctionnement complet. Même une page statique hébergée sur GitHub Pages n'est pas garantie accessible sur tous les réseaux d'entreprise.
+
+L'éditeur et le portail n'ont pas besoin de compte utilisateur supplémentaire ; ils ne disposent d'aucun accès aux données du planning serveur. Les droits du planning restent gérés exclusivement par City Équipe.
