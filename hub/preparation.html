@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#163c66">
+<meta name="referrer" content="no-referrer">
+<title>Préparer un planning · City Hub</title>
+<meta name="description" content="Préparer un brouillon hebdomadaire sans connexion au planning privé, puis l'importer avec l'accès manager.">
+<link rel="icon" href="./logo-city.svg" type="image/svg+xml">
+<style>
+:root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#1c303c;--blue:#1e66a4;--line:#dce6e8;--grey:#6e818d;background:#f4f7f7}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 90% 0,#dae8f4,transparent 32%),#f4f7f7}a{color:#185e97}button,input,textarea,select{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.5}button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #287ac4;outline-offset:2px}.shell{max-width:1190px;margin:0 auto;padding:0 clamp(13px,3.6vw,44px)}.header{height:75px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:14px}.brand{display:flex;align-items:center;gap:11px;text-decoration:none;color:#1c303c;font-weight:850;letter-spacing:-.05em}.brand img{width:42px;height:42px;object-fit:contain}.header .back{font-size:12px;text-decoration:none;font-weight:800;background:#fff;border:1px solid #d6e2e9;border-radius:10px;padding:11px 13px}.hero{padding:35px 0 25px;max-width:840px}.eyebrow{font-size:10px;letter-spacing:.12em;color:#246aaa;font-weight:900}.hero h1{font-size:clamp(29px,4.4vw,48px);letter-spacing:-.073em;line-height:1.15;margin:11px 0}.hero p{font-size:14px;line-height:1.6;color:#617580;margin:0}.notice{background:#e8f3fa;border:1px solid #bad7e8;color:#264f72;padding:14px 17px;border-radius:12px;font-size:12px;line-height:1.6;margin:0 0 22px}.notice strong{color:#134c7c}.steps{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.45fr);align-items:start;gap:15px}.panel{background:#fff;border:1px solid #dbe5e5;border-radius:16px;box-shadow:0 6px 19px #1b3b4910;min-width:0;padding:20px}.panel h2{font-size:19px;letter-spacing:-.04em;margin:0 0 5px}.panel p{color:#73838e;font-size:12px;line-height:1.55;margin:0 0 16px}.label{display:block;font-size:12px;font-weight:800;margin:13px 0 7px}.field{border:1px solid #cddde1;border-radius:10px;background:#fff;min-height:45px;padding:10px 12px;color:#1b3543;max-width:100%;width:100%}textarea.field{min-height:116px;resize:vertical;line-height:1.5}.controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.btn{display:inline-flex;justify-content:center;align-items:center;gap:8px;padding:11px 15px;min-height:45px;border-radius:10px;font-size:12px;font-weight:850;border:1px solid #cbdde4;background:#fff;color:#1a5883}.btn:hover{background:#eaf4fa}.btn.primary{background:#185d9d;border-color:#185d9d;color:#fff}.btn.primary:hover{background:#114d82}.btn.danger{border-color:#f1d2cd;color:#a6473a;background:#fff9f6}.btn.full{width:100%}.helper{font-size:11px;color:#7b8991;line-height:1.55;margin-top:10px}.roster{margin:15px 0 0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:6px}.roster li{display:inline-flex;align-items:center;gap:6px;background:#e7f1f9;border:1px solid #d2e6f1;border-radius:8px;color:#235f89;font-size:11px;padding:5px 8px;font-weight:750}.roster li button{border:0;background:transparent;color:#8f4c41;font-size:15px;font-weight:850;min-width:26px;min-height:26px}.weekbar{display:flex;justify-content:space-between;align-items:end;gap:9px;flex-wrap:wrap;margin-bottom:15px}.weekbar .date-field{max-width:180px}.date-field label{display:block;font-size:11px;font-weight:850;margin-bottom:6px}.count{background:#eaf5ee;color:#1d6b47;border:1px solid #cee6d7;padding:8px 11px;border-radius:8px;font-size:11px;font-weight:850}.sheet-scroller{overflow-x:auto;overscroll-behavior-inline:contain;-webkit-overflow-scrolling:touch}.sheet{width:100%;min-width:600px;border-spacing:0;border-collapse:separate;font-size:11px}.sheet th{padding:11px 7px;background:#eff5f8;border-bottom:1px solid #d6e4e9;font-size:11px;text-align:center}.sheet th:first-child{text-align:left;width:125px}.sheet td{padding:8px 5px;border-bottom:1px solid #edf2f2;text-align:center}.sheet td:first-child{text-align:left;font-weight:800;max-width:138px;overflow-wrap:anywhere}.cell{border:1px solid #dae6eb;background:#f8fbfc;border-radius:8px;padding:8px 5px;min-height:47px;min-width:64px;width:100%;color:#486a7a;font-size:10px;font-weight:750;line-height:1.35}.cell:hover{border-color:#8bbad6;background:#eff7fb}.cell.service{background:#e6f2fc;border-color:#b6d7ee;color:#155b92}.cell.cp{background:#e5edec;border-color:#cedcdb;color:#426f64}.cell.repos{background:#f1f2f3;border-color:#dbdfe3;color:#6b7b87}.actions{margin-top:18px;padding-top:16px;border-top:1px solid #e5eded}.status{margin:12px 0 0;font-size:12px;color:#336145;min-height:21px}.status.error{color:#aa4439}.infobox{margin-top:15px;background:#fff8eb;border:1px solid #f1e0bd;border-radius:13px;padding:15px 18px;font-size:12px;line-height:1.65;color:#826241}.infobox strong{color:#755126}.infobox ol{padding-left:20px;margin:8px 0 0}.infobox li{margin:3px 0}.dialog{max-width:450px;width:calc(100% - 26px);border:1px solid #d4e1e7;border-radius:16px;box-shadow:0 24px 70px #102e4854;padding:22px;background:#fff;color:#1b303c}.dialog::backdrop{background:#0e2635a0}.dialog h2{font-size:23px;letter-spacing:-.05em;margin:0 0 8px}.dialog p{font-size:12px;color:#627782;margin:0 0 18px}.dialog .choice{display:flex;gap:9px;flex-wrap:wrap}.choice label{display:inline-flex;align-items:center;gap:5px;border:1px solid #d6e5e7;padding:10px 12px;border-radius:9px;font-size:12px;font-weight:750;cursor:pointer}.time-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:11px}.presets{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.presets button{font-size:10px;font-weight:750;border:1px solid #cbdfea;background:#f2f8fc;border-radius:8px;padding:8px 9px;min-height:36px;color:#205982}.footer-controls{margin-top:18px;display:flex;gap:9px;justify-content:flex-end}.footer{font-size:11px;color:#73858b;border-top:1px solid var(--line);padding:25px 0 30px;margin-top:38px}@media(max-width:900px){.steps{grid-template-columns:1fr}.panel{padding:17px}.sheet{min-width:620px}}@media(max-width:430px){.header{height:67px}.brand img{width:34px;height:34px}.brand{font-size:13px}.hero{padding:28px 0 21px}.hero h1{font-size:31px}.controls .btn{flex:1}.time-row{grid-template-columns:1fr 1fr}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="shell">
+<header class="header"><a class="brand" href="./"><img src="./logo-city.svg" alt=""><span>City Hub · Préparation</span></a><a href="./" class="back">← Retour au portail</a></header>
+<main>
+<section class="hero"><div class="eyebrow">PLANNING · BROUILLON PRIVÉ</div><h1>Préparer la semaine, simplement.</h1><p>Construisez un brouillon sur cet appareil, puis importez le fichier dans le planning officiel depuis un appareil autorisé. Rien n'est publié ici.</p></section>
+<div class="notice" role="note"><strong>Important :</strong> cet outil ne synchronise pas les horaires et ne contacte pas le serveur du planning. Les noms et horaires restent uniquement en mémoire pendant que cette page est ouverte. Le fichier exporté contient des données de collègues : ne le laissez pas sur un PC partagé.</div>
+<div class="steps">
+<section class="panel" aria-labelledby="team-title"><h2 id="team-title">1. Ajouter les collègues</h2><p>Un prénom ou nom complet par ligne. Seuls ceux que vous ajoutez apparaissent dans le brouillon.</p>
+<label class="label" for="teamInput">Collègues</label><textarea id="teamInput" class="field" placeholder="Andrew&#10;Baptiste&#10;Alice" maxlength="4000"></textarea>
+<div class="controls" style="margin-top:10px"><button class="btn primary" id="addTeam" type="button">Ajouter au tableau</button><button class="btn" id="openDraft" type="button">Reprendre un brouillon JSON</button><input id="draftInput" type="file" accept=".json,application/json" hidden></div>
+<ul id="roster" class="roster" aria-label="Collègues ajoutés"></ul>
+<p class="helper">Les noms doivent correspondre à ceux du planning officiel pour que l'importation retrouve les bons profils. L'ajout n'envoie rien à GitHub.</p>
+</section>
+<section class="panel" aria-labelledby="schedule-title"><div class="weekbar"><div><h2 id="schedule-title">2. Remplir les horaires</h2><p style="margin:5px 0 0">Touchez une case pour choisir service, repos ou CP.</p></div><div class="date-field"><label for="weekInput">Semaine du lundi</label><input id="weekInput" type="date" class="field"></div><div class="count" id="dirtyCount">0 modification</div></div>
+<div class="sheet-scroller"><table class="sheet" aria-label="Semaine à préparer"><thead><tr><th scope="col">Collègue</th><th scope="col">Lun</th><th scope="col">Mar</th><th scope="col">Mer</th><th scope="col">Jeu</th><th scope="col">Ven</th><th scope="col">Sam</th><th scope="col">Dim</th></tr></thead><tbody id="shiftRows"><tr><td colspan="8">Ajoutez un collègue pour commencer.</td></tr></tbody></table></div>
+<p class="helper">Les cases « — » ne seront pas modifiées lors de l'importation. Le brouillon n'efface donc pas les horaires existants par défaut.</p>
+<div class="actions"><div class="controls"><button class="btn primary" id="exportDraft" type="button">Télécharger le brouillon JSON</button><button class="btn danger" id="clearDraft" type="button">Effacer le brouillon</button></div><p class="status" id="status" role="status" aria-live="polite"></p></div>
+</section>
+</div>
+<section class="infobox" aria-labelledby="handoff-title"><strong id="handoff-title">3. Valider sur le planning officiel</strong><ol><li>Récupérez le fichier <strong>.json</strong> sur un téléphone ou un appareil autorisé.</li><li>Ouvrez <a href="https://planning.city-ornano.fr/">City Équipe</a>, identifiez-vous avec un profil manager, puis ouvrez « Gestion » → « Tableau de saisie ».</li><li>Appuyez sur <strong>Importer un brouillon</strong>, choisissez le fichier et vérifiez la grille.</li><li>Appuyez ensuite sur <strong>Enregistrer</strong> pour publier les modifications, après validation des éventuels conflits.</li></ol><p style="margin:11px 0 0">Si vous ne pouvez pas transférer le fichier de manière autorisée, conservez le planning officiel comme seul moyen d'édition. Ne partagez pas un fichier de collègues sur des canaux non approuvés.</p></section>
+</main><footer class="footer">City Hub · Outil complémentaire. Aucun horaire n'est publié depuis cette page.</footer>
+</div>
+<dialog class="dialog" id="cellDialog" aria-labelledby="cellTitle">
+<form id="cellForm"><h2 id="cellTitle">Modifier une case</h2><p id="cellDate"></p>
+<div class="choice"><label><input type="radio" name="kind" value="service" checked> Service</label><label><input type="radio" name="kind" value="repos"> Repos</label><label><input type="radio" name="kind" value="cp"> CP</label></div>
+<div id="timeBlock"><div class="time-row"><label class="label" for="startTime">Arrivée<input type="time" class="field" id="startTime" value="06:00" required></label><label class="label" for="endTime">Départ<input type="time" class="field" id="endTime" value="13:20" required></label></div>
+<div class="presets"><button type="button" data-times="06:00|13:20">6h–13h20</button><button type="button" data-times="06:40|14:00">6h40–14h</button><button type="button" data-times="07:00|14:20">7h–14h20</button><button type="button" data-times="09:00|13:00">9h–13h</button><button type="button" data-times="12:00|22:20">12h–22h20</button><button type="button" data-times="15:00|22:20">15h–22h20</button></div></div>
+<div class="footer-controls"><button class="btn danger" id="clearCell" type="button">Ne pas modifier</button><button class="btn" id="cancelCell" type="button">Annuler</button><button class="btn primary" type="submit">Valider la case</button></div></form>
+</dialog>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const state={names:[],changes:new Map(),week:'',seq:0,edit:null};
+const ISO=/^\d{4}-\d{2}-\d{2}$/;
+const CLOCK=/^([01]\d|2[0-3]):[0-5]\d$/;
+const norm=s=>String(s).trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('fr').replace(/\s+/g,' ');
+function isoDate(str){if(!ISO.test(str))return null;const d=new Date(str+'T00:00:00Z');return Number.isFinite(d.valueOf())&&d.toISOString().slice(0,10)===str?d:null}
+function monday(str){const d=isoDate(str);if(!d)return null;d.setUTCDate(d.getUTCDate() - (d.getUTCDay()+6)%7);return d.toISOString().slice(0,10)}
+function dayAdd(str,n){const d=isoDate(str);d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10)}
+function key(id,date){return String(id)+'|'+date}
+function tell(msg,error){$('status').textContent=msg;$('status').classList.toggle('error',!!error)}
+function button(label,cls,onclick){const b=document.createElement('button');b.type='button';b.textContent=label;b.className=cls;b.addEventListener('click',onclick);return b}
+function render(){
+ $('weekInput').value=state.week;
+ $('dirtyCount').textContent=state.changes.size+' modification'+(state.changes.size>1?'s':'');
+ const roster=$('roster');roster.replaceChildren();
+ state.names.forEach(p=>{const li=document.createElement('li');const span=document.createElement('span');span.textContent=p.name;li.append(span,button('×','',()=>{
+ if(!confirm('Retirer '+p.name+' et ses cases ?'))return;state.names=state.names.filter(x=>x.id!==p.id);
+ for(const k of state.changes.keys())if(k.startsWith(p.id+'|'))state.changes.delete(k);render();
+ }));roster.append(li)});
+ const tbody=$('shiftRows');tbody.replaceChildren();
+ if(!state.names.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=8;td.textContent='Ajoutez un collègue pour commencer.';tr.append(td);tbody.append(tr);return}
+ for(const p of state.names){
+  const tr=document.createElement('tr'),head=document.createElement('td');head.textContent=p.name;tr.append(head);
+  for(let i=0;i<7;i++){
+   const date=dayAdd(state.week,i),change=state.changes.get(key(p.id,date));
+   const td=document.createElement('td');
+   const caption=!change?'—':change.kind==='service'?change.starts_at.replace(':','h')+'–'+change.ends_at.replace(':','h'):change.kind==='cp'?'CP':'Repos';
+   const b=button(caption,'cell'+(change?' '+change.kind:''),()=>openCell(p,date));
+   b.setAttribute('aria-label',p.name+', '+date+' : '+(change?caption:'non modifié')+', cliquer pour modifier');
+   td.append(b);tr.append(td);
+  }
+  tbody.append(tr);
+ }
+}
+function addNames(input){
+ const items=input.split(/[\n;]+/).map(x=>x.trim()).filter(Boolean);
+ if(!items.length)throw Error('Saisissez au moins un collègue.');
+ if(state.names.length+items.length>28)throw Error('Maximum 28 collègues dans le brouillon.');
+ const seen=new Set(state.names.map(x=>norm(x.name)));
+ let count=0;
+ for(const name of items){
+  if(name.length>70)throw Error('Nom de collègue trop long.');
+  if(!seen.has(norm(name))){state.names.push({id:++state.seq,name});seen.add(norm(name));count++}
+ }
+ return count;
+}
+function openCell(p,date){
+ state.edit={id:p.id,date,name:p.name};
+ const c=state.changes.get(key(p.id,date));
+ $('cellTitle').textContent=p.name;
+ $('cellDate').textContent=new Date(date+'T12:00:00Z').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'UTC'});
+ const kind=c?.kind||'service';
+ document.querySelectorAll('input[name="kind"]').forEach(el=>el.checked=el.value===kind);
+ $('startTime').value=c?.starts_at||'06:00';$('endTime').value=c?.ends_at||'13:20';
+ updateTime();$('cellDialog').showModal();
+}
+function updateTime(){const kind=document.querySelector('input[name="kind"]:checked').value;const active=kind==='service';$('timeBlock').hidden=!active;$('startTime').required=active;$('endTime').required=active}
+function validate(d){
+ if(!d||d.format!=='city-equipe-draft/v1'||!isoDate(d.week_start)||monday(d.week_start)!==d.week_start||!Array.isArray(d.changes)||d.changes.length>196)throw Error('Le fichier n’est pas un brouillon City Équipe valide.');
+ const unique=new Set();
+ for(const c of d.changes){
+  if(!c||typeof c.employee_name!=='string'||!c.employee_name.trim()||c.employee_name.length>70)throw Error('Nom invalide dans le fichier.');
+  if(!isoDate(c.work_date)||c.work_date<d.week_start||c.work_date>dayAdd(d.week_start,6))throw Error('Date hors semaine dans le fichier.');
+  if(!['service','repos','cp'].includes(c.kind))throw Error('Type de case inconnu.');
+  if(c.kind==='service'&&(!CLOCK.test(c.starts_at)||!CLOCK.test(c.ends_at)||c.starts_at>=c.ends_at))throw Error('Horaires invalides pour '+c.employee_name+'.');
+  const k=norm(c.employee_name)+'|'+c.work_date;if(unique.has(k))throw Error('Case dupliquée : '+c.employee_name);unique.add(k);
+ }
+ return d;
+}
+function exportDraft(){
+ const changes=[];
+ for(const p of state.names){
+  for(let i=0;i<7;i++){
+   const d=dayAdd(state.week,i),value=state.changes.get(key(p.id,d));if(!value)continue;
+   changes.push(Object.assign({employee_name:p.name,work_date:d,kind:value.kind},value.kind==='service'?{starts_at:value.starts_at,ends_at:value.ends_at}:{}));
+  }
+ }
+ if(!changes.length){tell('Modifiez au moins une case avant de télécharger.',true);return}
+ const data={format:'city-equipe-draft/v1',week_start:state.week,created_at:new Date().toISOString(),changes};validate(data);
+ const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json;charset=utf-8'});
+ const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='planning-brouillon-'+state.week+'.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+ tell('Brouillon téléchargé. Aucune donnée n’a été publiée. Supprimez le fichier du PC partagé après transfert.');
+}
+async function loadDraft(file){
+ if(!file||file.size>250000)throw Error('Fichier trop volumineux.');
+ const data=validate(JSON.parse(await file.text()));
+ if(state.changes.size&&!confirm('Remplacer le brouillon en cours ?'))return;
+ const people=[],found=new Map();let next=0;
+ for(const c of data.changes){const k=norm(c.employee_name);if(!found.has(k)){const person={id:++next,name:c.employee_name};people.push(person);found.set(k,person)}}
+ state.names=people;state.seq=next;state.week=data.week_start;state.changes.clear();
+ for(const c of data.changes){const p=found.get(norm(c.employee_name));const value={kind:c.kind};if(c.kind==='service'){value.starts_at=c.starts_at;value.ends_at=c.ends_at}state.changes.set(key(p.id,c.work_date),value)}
+ render();tell('Brouillon chargé. Vérifiez les cases avant de le transférer.');
+}
+$('addTeam').addEventListener('click',()=>{try{const count=addNames($('teamInput').value);$('teamInput').value='';render();tell(count+' collègue'+(count>1?'s':'')+' ajouté'+(count>1?'s':'')+'.')}catch(e){tell(e.message,true)}});
+$('weekInput').addEventListener('change',e=>{const next=monday(e.target.value);if(!next){e.target.value=state.week;tell('Choisissez une date valide.',true);return}if(next!==state.week&&state.changes.size&&!confirm('Changer de semaine efface les cases du brouillon actuel. Continuer ?')){e.target.value=state.week;return}if(next!==state.week){state.week=next;state.changes.clear()}render()});
+$('openDraft').addEventListener('click',()=>$('draftInput').click());
+$('draftInput').addEventListener('change',async e=>{try{if(e.target.files[0])await loadDraft(e.target.files[0])}catch(err){tell(err.message,true)}finally{e.target.value=''}});
+$('exportDraft').addEventListener('click',exportDraft);
+$('clearDraft').addEventListener('click',()=>{if(!state.names.length&&!state.changes.size)return;if(!confirm('Effacer tous les collègues et cases de cette page ?'))return;state.names=[];state.changes.clear();render();tell('Brouillon effacé de cette page.')});
+document.querySelectorAll('input[name="kind"]').forEach(el=>el.addEventListener('change',updateTime));
+document.querySelectorAll('[data-times]').forEach(b=>b.addEventListener('click',()=>{const vals=b.dataset.times.split('|');$('startTime').value=vals[0];$('endTime').value=vals[1]}));
+$('cancelCell').addEventListener('click',()=>$('cellDialog').close());
+$('clearCell').addEventListener('click',()=>{if(state.edit)state.changes.delete(key(state.edit.id,state.edit.date));$('cellDialog').close();render()});
+$('cellForm').addEventListener('submit',e=>{e.preventDefault();const kind=document.querySelector('input[name="kind"]:checked').value;const value={kind};if(kind==='service'){const a=$('startTime').value,b=$('endTime').value;if(!CLOCK.test(a)||!CLOCK.test(b)||a>=b){alert('Horaires invalides : le départ doit être après l’arrivée.');return}value.starts_at=a;value.ends_at=b}
+ if(!state.edit)return;state.changes.set(key(state.edit.id,state.edit.date),value);$('cellDialog').close();render();tell('Case ajoutée au brouillon, pas encore publiée.')});
+window.addEventListener('beforeunload',e=>{if(state.changes.size){e.preventDefault();e.returnValue=''}});
+state.week=monday(new Date().toISOString().slice(0,10));render();
+})();
+</script>
+</body>
+</html>
