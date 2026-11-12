@@ -150,7 +150,7 @@ $('clearCell').addEventListener('click',()=>{if(state.edit)state.changes.delete(
 $('cellForm').addEventListener('submit',e=>{e.preventDefault();const kind=document.querySelector('input[name="kind"]:checked').value;const value={kind};if(kind==='service'){const a=$('startTime').value,b=$('endTime').value;if(!CLOCK.test(a)||!CLOCK.test(b)||a>=b){alert('Horaires invalides : le départ doit être après l’arrivée.');return}value.starts_at=a;value.ends_at=b}
  if(!state.edit)return;state.changes.set(key(state.edit.id,state.edit.date),value);$('cellDialog').close();render();tell('Case ajoutée au brouillon, pas encore publiée.')});
 window.addEventListener('beforeunload',e=>{if(state.changes.size){e.preventDefault();e.returnValue=''}});
-state.week=monday(new Date().toISOString().slice(0,10));render();
+state.week=monday(new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Paris',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()));render();
 })();
 </script>
 </body>
