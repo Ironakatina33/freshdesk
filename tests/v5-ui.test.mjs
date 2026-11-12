@@ -114,3 +114,52 @@ test('Statistics distinguish sent orders, receipt, exits, losses and cancellatio
  assert.equal(api.seasonFor('2026-08-16T10:00:00Z'),'Été');
  assert.equal(api.normalize(JSON.parse(JSON.stringify(p))).months[0].ordered,6);
 });
+
+test('Shelf fill is independent from reserve quantities, with explicit non-renseigné and four useful filters',()=>{
+ const html=read('index.html');
+ const stock=read('freshdesk-stock.js');
+ const history=read('freshdesk-history.js');
+ const insights=read('freshdesk-insights.js');
+ const start=html.indexOf('const shelfValue=v=>');
+ const end=html.indexOf('const stockEvents=v=>',start);
+ assert.ok(start>0 && end>start,'Shelf helpers must be defined before product sanitization');
+ const helpers=runInNewContext(html.slice(start,end)+'\n({shelfValue,shelfLabel,shelfFilterMatch})');
+ assert.equal(helpers.shelfValue(null),null,'Legacy empty shelf is unknown, not empty');
+ assert.equal(helpers.shelfValue(undefined),null);
+ assert.equal(helpers.shelfValue(''),null);
+ assert.equal(helpers.shelfValue('0'),0,'Explicit empty shelf must remain distinct from unset');
+ assert.equal(helpers.shelfValue(25),25);
+ assert.equal(helpers.shelfValue(75),75);
+ assert.equal(helpers.shelfValue(100),100);
+ assert.equal(helpers.shelfValue(49),null,'Avoid pseudo-precise unapproved categories');
+ assert.equal(helpers.shelfLabel(75),'50 à 99 %');
+ assert.ok(helpers.shelfFilterMatch({shelfFill:0},'empty'));
+ assert.ok(!helpers.shelfFilterMatch({shelfFill:100},'empty'));
+ assert.ok(helpers.shelfFilterMatch({shelfFill:null},'unset'));
+ assert.ok(helpers.shelfFilterMatch({shelfFill:100},'full'));
+ assert.ok(helpers.shelfFilterMatch({shelfFill:25},'low'));
+ assert.ok(helpers.shelfFilterMatch({shelfFill:75},'mid'));
+ assert.match(html,/id="shelfFilter"/,'Catalogue and order have a shelf filter');
+ assert.match(html,/shelfFill:shelfValue\(p\.shelfFill\)/,'Shelf status is stored in shared JSON');
+ assert.match(html,/window\.addEventListener\('fle:shelf-set'/,'Shelf changes are handled by the manager guard');
+ assert.match(html,/if\(!canEdit\(\)\)/);
+ assert.match(stock,/id="fleStockShelfFilter"/,'Stock manager has a shelf filter');
+ assert.match(stock,/data-shelf-set/,'The shelf status can be updated per item');
+ assert.match(stock,/fle:shelf-set/);
+ assert.match(history,/shelfFill:/,'Snapshots track shelf state');
+ assert.match(history,/Remplissage rayon/,'History explains the status changes');
+ assert.match(insights,/Remplissage du rayon/,'Product sheet shows shelf status');
+ const a=stock.indexOf('const shelfFill=p=>');
+ const b=stock.indexOf('const date = value',a);
+ assert.ok(a>=0&&b>a,'Stock warning helpers found');
+ const state=runInNewContext('const known=p=>p.stock!==null&&p.stock!==undefined&&Number.isFinite(Number(p.stock));\n'+stock.slice(a,b)+'\n({low,shelfMatch})');
+ assert.equal(state.low({stock:0,stockMin:3,shelfFill:100}),false,
+  '0 reserve but full shelf should not be treated as an immediate empty shelf');
+ assert.equal(state.low({stock:0,stockMin:3,shelfFill:75}),false);
+ assert.equal(state.low({stock:0,stockMin:3,shelfFill:0}),true);
+ assert.equal(state.low({stock:0,stockMin:3,shelfFill:null}),true,
+  'Unknown shelf does not suppress the existing reserve warning');
+ assert.equal(state.shelfMatch({shelfFill:25},'low'),true);
+ assert.equal(state.shelfMatch({shelfFill:100},'low'),false);
+ assert.match(stock,/Réserve vide · rayon rempli/);
+});
