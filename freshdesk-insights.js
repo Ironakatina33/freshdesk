@@ -13,6 +13,7 @@
  const date=s=>{try{return new Intl.DateTimeFormat('fr-FR',{dateStyle:'medium',timeStyle:'short'}).format(new Date(s))}catch{return String(s||'')}};
  const product=()=>state.products.find(p=>p.id===currentId);
  const known=p=>p.stock!==null&&p.stock!==undefined&&Number.isFinite(Number(p.stock));
+ const shelfLabel=p=>p.shelfFill===0?'Vide · 0 %':p.shelfFill===25?'Moins de 50 %':p.shelfFill===75?'50 à 99 %':p.shelfFill===100?'Plein · 100 %':'Non renseigné';
  function relativePeriod(iso){
   if(period==='all')return true;
   if(period==='year')return iso.slice(0,4)===String(new Date().getFullYear());
@@ -44,7 +45,8 @@
   const avg=all.rotationUnits>0?all.rotationDayUnits/all.rotationUnits:null;
   const unit=esc(p.unit);
   return '<div class="fle-ins-kpis">'+
-   totalCard('Stock actuel',known(p)?fr.format(p.stock):'—',known(p)?unit:'À inventorier','is-hero')+
+   totalCard('Stock en réserve',known(p)?fr.format(p.stock):'—',known(p)?unit:'À inventorier','is-hero')+
+   totalCard('Remplissage du rayon',shelfLabel(p),'Indication visuelle · sans impact sur le stock','is-shelf')+
    totalCard('Quantité commandée*',fr.format(all.ordered),unit+' marqués envoyés')+
    totalCard('Réceptionnés',fr.format(all.received),unit+' reçus')+
    totalCard('Sorties saisies',fr.format(all.exit),unit+' déclarés')+
@@ -104,10 +106,14 @@
   ).join('')+'</div><p class="fle-ins-subnote">Derniers événements conservés sur la fiche. Les totaux mensuels persistent même lorsque les anciens détails ne sont plus affichés.</p>';
  }
  function currentPill(p){
-  if(!known(p))return '<span class="fle-ins-badge neutral">À inventorier</span>';
-  if(p.stock===0)return '<span class="fle-ins-badge warning">Rupture</span>';
-  if(p.stockMin>0&&p.stock<=p.stockMin)return '<span class="fle-ins-badge warning">Stock bas</span>';
-  return '<span class="fle-ins-badge good">En stock</span>';
+  const filled=p.shelfFill===75||p.shelfFill===100;
+  const shelf=p.shelfFill===null?'<span class="fle-ins-badge neutral">Rayon non renseigné</span>':
+   '<span class="fle-ins-badge '+(p.shelfFill===0?'warning':filled?'good':'neutral')+'">Rayon : '+esc(shelfLabel(p))+'</span>';
+  const reserve=!known(p)?'<span class="fle-ins-badge neutral">Réserve à inventorier</span>':
+   p.stock===0?'<span class="fle-ins-badge '+(filled?'neutral':'warning')+'">Réserve vide</span>':
+   p.stockMin>0&&p.stock<=p.stockMin?'<span class="fle-ins-badge warning">Réserve basse</span>':
+   '<span class="fle-ins-badge good">En réserve</span>';
+  return reserve+' '+shelf;
  }
  function content(p,rows,totals){
   if(section==='history')return '<section class="fle-ins-block"><h3>Historique des mouvements</h3>'+history(p)+'</section>';
